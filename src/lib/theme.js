@@ -1,0 +1,37 @@
+import { unlock } from "./achievements";
+
+export function currentTheme() {
+  const set = document.documentElement.dataset.theme;
+  if (set) return set;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+export function toggleTheme() {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {}
+  unlock("theme");
+  return next;
+}
+
+// Cross-component signals, kept as window events so server components
+// can stay server components.
+export const emit = (name, detail) =>
+  window.dispatchEvent(new CustomEvent(name, { detail }));
+
+export const openCommandMenu = () => emit("open-command-menu");
+export const openAchievements = () => emit("open-achievements");
+export const playSnake = () => emit("play-snake");
+export const filterTech = (tech) => emit("filter-tech", tech);
+
+export function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+export function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
