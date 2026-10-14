@@ -1,4 +1,3 @@
-import { experience } from "@/data/portfolio";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
@@ -9,7 +8,7 @@ function shortHash(input) {
   return (h >>> 0).toString(16).padStart(8, "0").slice(0, 7);
 }
 
-export default function Experience() {
+export default function Experience({ experience }) {
   return (
     <section id="experience" className="border-t border-line">
       <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 md:py-32">
@@ -17,7 +16,7 @@ export default function Experience() {
 
         <ol className="relative font-mono text-sm">
           {experience.map((job, i) => (
-            <Reveal as="li" key={job.period + job.role} delay={i * 80} className="relative grid grid-cols-[1.25rem_1fr] gap-x-3 pb-12 last:pb-0">
+            <Reveal as="li" key={i} delay={i * 80} className="relative grid grid-cols-[1.25rem_1fr] gap-x-3 pb-12 last:pb-0">
               {/* graph line + node */}
               <span className="relative flex justify-center" aria-hidden="true">
                 <span className={`absolute top-6 bottom-[-0.25rem] w-px bg-line ${i === experience.length - 1 ? "hidden" : ""}`} />

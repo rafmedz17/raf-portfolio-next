@@ -1,45 +1,49 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { navLinks, profile, socials } from "@/data/portfolio";
+import { navLinks } from "@/data/nav";
 import { openAchievements, playSnake, toggleTheme } from "@/lib/theme";
 import { unlock } from "@/lib/achievements";
 
-const ACTIONS = [
-  ...navLinks.map((l) => ({
-    group: "Navigate",
-    label: `Go to ${l.label}`,
-    run: () => document.querySelector(l.href)?.scrollIntoView({ behavior: "smooth" }),
-  })),
-  { group: "Navigate", label: "Back to top", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
-  { group: "Actions", label: "Copy email address", hint: profile.email, run: () => navigator.clipboard?.writeText(profile.email) },
-  { group: "Actions", label: "Send an email", run: () => (window.location.href = `mailto:${profile.email}`) },
-  { group: "Actions", label: "Toggle theme", run: toggleTheme },
-  {
-    group: "Fun",
-    label: "Play snake",
-    hint: "in the terminal",
-    run: () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      playSnake();
+function buildActions(profile, socials) {
+  return [
+    ...navLinks.map((l) => ({
+      group: "Navigate",
+      label: `Go to ${l.label}`,
+      run: () => document.querySelector(l.href)?.scrollIntoView({ behavior: "smooth" }),
+    })),
+    { group: "Navigate", label: "Back to top", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+    { group: "Actions", label: "Copy email address", hint: profile.email, run: () => navigator.clipboard?.writeText(profile.email) },
+    { group: "Actions", label: "Send an email", run: () => (window.location.href = `mailto:${profile.email}`) },
+    { group: "Actions", label: "Toggle theme", run: toggleTheme },
+    {
+      group: "Fun",
+      label: "Play snake",
+      hint: "in the terminal",
+      run: () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        playSnake();
+      },
     },
-  },
-  { group: "Fun", label: "View achievements", run: openAchievements },  ...socials.map((s) => ({
-    group: "Links",
-    label: `Open ${s.label}`,
-    run: () => window.open(s.href, "_blank", "noopener"),
-  })),
-];
+    { group: "Fun", label: "View achievements", run: openAchievements },
+    ...socials.map((s) => ({
+      group: "Links",
+      label: `Open ${s.label}`,
+      run: () => window.open(s.href, "_blank", "noopener"),
+    })),
+  ];
+}
 
-export default function CommandMenu() {
+export default function CommandMenu({ profile, socials }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  const actions = useMemo(() => buildActions(profile, socials), [profile, socials]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? ACTIONS.filter((a) => a.label.toLowerCase().includes(q)) : ACTIONS;
-  }, [query]);
+    return q ? actions.filter((a) => a.label.toLowerCase().includes(q)) : actions;
+  }, [actions, query]);
 
   useEffect(() => {
     const reset = () => {
@@ -119,7 +123,7 @@ export default function CommandMenu() {
           {results.map((action, i) => {
             const showGroup = action.group !== results[i - 1]?.group;
             return (
-              <li key={action.label}>
+              <li key={`${action.group}-${i}`}>
                 {showGroup && (
                   <p className="px-3 pt-3 pb-1 font-mono text-[11px] text-muted">{action.group}</p>
                 )}

@@ -1,0 +1,121 @@
+{
+  "profile": {
+    "name": "Raf",
+    "fullName": "Rafael Vincent D. Medina",
+    "handle": "rafmedz17",
+    "role": "Software Developer",
+    "headlinePrefix": "I build software that's",
+    "headlineWords": [
+      "fast.",
+      "reliable.",
+      "well-tested.",
+      "easy to maintain."
+    ],
+    "intro": "Full-stack developer working across the stack — from database schema and APIs to the last pixel of the UI. I like boring infrastructure, clear code, and products that just work.",
+    "email": "rafaelmedz17@gmail.com",
+    "location": "Candelaria, Quezon",
+    "timeZone": "Asia/Manila",
+    "available": true,
+    "availability": "Open to new opportunities",
+    "resume": ""
+  },
+  "socials": [
+    {
+      "label": "GitHub",
+      "href": "https://github.com/rafmedz17"
+    },
+    {
+      "label": "LinkedIn",
+      "href": "#"
+    }
+  ],
+  "about": {
+    "paragraphs": [
+      "I'm a software developer who enjoys turning messy requirements into simple, well-structured systems. Most of my work lives on the web: React and Next.js on the front, Node, Python and Postgres behind it.",
+      "I care about the things that keep a codebase healthy over time — sensible abstractions, good tests, readable pull requests, and shipping in small, safe steps."
+    ],
+    "now": [
+      {
+        "label": "Building",
+        "value": "this portfolio, again"
+      },
+      {
+        "label": "Learning",
+        "value": "Go & distributed systems"
+      },
+      {
+        "label": "Reading",
+        "value": "Designing Data-Intensive Applications"
+      },
+      {
+        "label": "Fueled by",
+        "value": "black coffee"
+      }
+    ]
+  },
+  "stack": [
+    {
+      "group": "languages",
+      "items": [
+        "TypeScript",
+        "JavaScript",
+        "Python",
+        "SQL",
+        "Go"
+      ]
+    },
+    {
+      "group": "frontend",
+      "items": [
+        "React",
+        "Next.js",
+        "Tailwind CSS",
+        "React Native"
+      ]
+    },
+    {
+      "group": "backend",
+      "items": [
+        "Node.js",
+        "Express",
+        "FastAPI",
+        "PostgreSQL",
+        "Redis"
+      ]
+    },
+    {
+      "group": "tooling",
+      "items": [
+        "Git",
+        "Docker",
+        "AWS",
+        "Vercel",
+        "GitHub Actions"
+      ]
+    }
+  ],
+  "projects": [],
+  "experience": [
+    {
+      "role": "Junior Full-Stack Developer",
+      "company": "Company Name",
+      "period": "2022 — 2024",
+      "current": false,
+      "text": "Shipped features end-to-end across a React frontend and Node/Postgres backend. Introduced CI checks and automated tests."
+    },
+    {
+      "role": "Software Developer",
+      "company": "Company Name",
+      "period": "2024 — Present",
+      "current": true,
+      "text": "Building and maintaining customer-facing web apps and internal tools. Led a migration to Next.js that cut page load times by ~40%."
+    },
+    {
+      "role": "Developer Intern",
+      "company": "Company Name",
+      "period": "2021 — 2022",
+      "current": false,
+      "text": "Fixed bugs, wrote my first production code, and learned how real teams ship software."
+    }
+  ]
+}

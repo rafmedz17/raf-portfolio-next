@@ -35,7 +35,7 @@ function trackPointer(e) {
 
 export default function ProjectList({ projects }) {
   const [tech, setTech] = useState(null);
-  const allTech = [...new Set(projects.flatMap((p) => p.stack))].sort();
+  const allTech = [...new Set(projects.flatMap((p) => p.stack))].filter(Boolean).sort();
 
   const select = (next) => {
     setTech((current) => (current === next ? null : next));
@@ -87,7 +87,7 @@ export default function ProjectList({ projects }) {
         {projects.map((project, i) => {
           const active = matches(project);
           return (
-            <Reveal as="li" key={project.title} delay={i * 60} className="border-b border-line">
+            <Reveal as="li" key={i} delay={i * 60} className="border-b border-line">
               <article
                 onPointerMove={trackPointer}
                 className={`group relative grid gap-4 overflow-hidden py-8 transition-opacity duration-300 md:grid-cols-[3rem_1fr_auto] md:gap-8 md:px-4 ${active ? "" : "opacity-25"}`}
@@ -108,8 +108,8 @@ export default function ProjectList({ projects }) {
                   </h3>
                   <p className="mt-2 max-w-xl leading-relaxed text-muted">{project.description}</p>
                   <ul className="mt-4 flex flex-wrap gap-2">
-                    {project.stack.map((t) => (
-                      <li key={t}>
+                    {project.stack.map((t, ti) => (
+                      <li key={ti}>
                         <button
                           type="button"
                           onClick={() => select(t)}

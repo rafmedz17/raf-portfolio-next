@@ -1,9 +1,8 @@
-import { profile, socials } from "@/data/portfolio";
 import Reveal from "./Reveal";
 import CopyEmail from "./CopyEmail";
 import CommitForm from "./CommitForm";
 
-export default function Contact() {
+export default function Contact({ profile, socials }) {
   return (
     <section id="contact" className="border-t border-line">
       <div className="mx-auto grid max-w-5xl gap-12 px-4 py-24 sm:px-6 md:py-32 lg:grid-cols-[1fr_1.05fr] lg:items-start">
@@ -33,9 +32,9 @@ export default function Contact() {
           </Reveal>
 
           <Reveal delay={150} className="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-sm">
-            {socials.map((s) => (
+            {socials.map((s, i) => (
               <a
-                key={s.label}
+                key={i}
                 href={s.href}
                 target="_blank"
                 rel="noreferrer"

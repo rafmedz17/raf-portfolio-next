@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { navLinks, profile } from "@/data/portfolio";
+import { navLinks } from "@/data/nav";
 import ScrambleText from "./ScrambleText";
 
 // Shows the current section as a shell path: ~/raf/work
-export default function ActivePath() {
+export default function ActivePath({ name }) {
   const [section, setSection] = useState("");
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function ActivePath() {
   return (
     <a href="#top" className="font-mono text-sm font-medium tracking-tight">
       <span className="text-accent">~/</span>
-      {profile.name.toLowerCase()}
+      {name.toLowerCase()}
       {section && (
         <span className="text-muted">
           /<ScrambleText text={section} />

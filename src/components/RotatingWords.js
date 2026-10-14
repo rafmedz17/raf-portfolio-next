@@ -5,11 +5,14 @@ import ScrambleText from "./ScrambleText";
 
 export default function RotatingWords({ words, interval = 2600, className = "" }) {
   const [index, setIndex] = useState(0);
+  const list = words.filter(Boolean);
 
   useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % words.length), interval);
+    if (list.length < 2) return;
+    const id = setInterval(() => setIndex((i) => i + 1), interval);
     return () => clearInterval(id);
-  }, [words.length, interval]);
+  }, [list.length, interval]);
 
-  return <ScrambleText text={words[index]} className={className} />;
+  if (!list.length) return null;
+  return <ScrambleText text={list[index % list.length]} className={className} />;
 }

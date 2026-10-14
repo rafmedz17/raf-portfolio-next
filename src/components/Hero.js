@@ -1,11 +1,11 @@
-import { profile, socials } from "@/data/portfolio";
 import Terminal from "./Terminal";
 import LocalTime from "./LocalTime";
 import ScrambleText from "./ScrambleText";
 import RotatingWords from "./RotatingWords";
 import Spotlight from "./Spotlight";
 
-export default function Hero() {
+export default function Hero({ content }) {
+  const { profile, socials } = content;
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="dot-grid pointer-events-none absolute inset-0" aria-hidden="true" />
@@ -69,9 +69,9 @@ export default function Hero() {
             <div className="flex gap-2">
               <dt className="text-fg/60">find me</dt>
               <dd className="flex gap-3">
-                {socials.map((s) => (
+                {socials.map((s, i) => (
                   <a
-                    key={s.label}
+                    key={i}
                     href={s.href}
                     target="_blank"
                     rel="noreferrer"
@@ -85,7 +85,7 @@ export default function Hero() {
           </dl>
         </div>
 
-        <Terminal />
+        <Terminal content={content} />
       </div>
     </section>
   );

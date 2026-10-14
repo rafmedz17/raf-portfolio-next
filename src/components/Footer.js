@@ -1,7 +1,6 @@
-import { profile } from "@/data/portfolio";
 import AchievementCounter from "./AchievementCounter";
 
-export default function Footer() {
+export default function Footer({ profile }) {
   return (
     <footer id="site-footer" className="border-t border-line">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-8 font-mono text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">

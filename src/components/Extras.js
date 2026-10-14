@@ -3,12 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import { prefersReducedMotion } from "@/lib/theme";
-import { profile } from "@/data/portfolio";
 import MatrixRain from "./MatrixRain";
 
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 
-function greetConsole() {
+function greetConsole(profile) {
   console.log(
     `%c~/${profile.name.toLowerCase()}%c\n\nOh hey, you opened the console. 👀\nYou're clearly my kind of person — let's talk: ${profile.email}\n\nP.S. try the Konami code on the page.`,
     "font: 600 20px monospace; color: #4ade80;",
@@ -17,7 +16,7 @@ function greetConsole() {
 }
 
 // Site-wide fun: achievement toasts + panel, Konami code, console hello.
-export default function Extras() {
+export default function Extras({ profile }) {
   const [toasts, setToasts] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [matrix, setMatrix] = useState(false);
@@ -26,7 +25,8 @@ export default function Extras() {
   const stopMatrix = useCallback(() => setMatrix(false), []);
 
   useEffect(() => {
-    greetConsole();
+    greetConsole(profile);
+    // Listeners are registered once; the greeting only needs the first profile.
 
     const onAchievement = (e) => {
       const achievement = ACHIEVEMENTS.find((a) => a.id === e.detail);
@@ -67,6 +67,7 @@ export default function Extras() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("open-achievements", onOpenPanel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

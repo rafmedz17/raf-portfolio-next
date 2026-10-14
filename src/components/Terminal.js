@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { about, experience, profile, projects, socials, stack } from "@/data/portfolio";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { prefersReducedMotion, toggleTheme } from "@/lib/theme";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import SnakeGame from "./SnakeGame";
@@ -37,150 +36,150 @@ const FORTUNES = [
   "If it hurts, do it more often.",
 ];
 
-const COMMANDS = {
-  help: () => (
-    <div>
-      <p>Available commands:</p>
-      <div className="mt-1 grid grid-cols-[7.5rem_1fr] gap-x-2">
-        {HELP.map(([cmd, desc]) => (
-          <div key={cmd} className="contents">
-            <Accent>{cmd}</Accent>
-            <Muted>{desc}</Muted>
+function buildCommands({ profile, about, stack, projects, experience, socials }) {
+  const COMMANDS = {
+    help: () => (
+      <div>
+        <p>Available commands:</p>
+        <div className="mt-1 grid grid-cols-[7.5rem_1fr] gap-x-2">
+          {HELP.map(([cmd, desc]) => (
+            <div key={cmd} className="contents">
+              <Accent>{cmd}</Accent>
+              <Muted>{desc}</Muted>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2">
+          <Muted>…and a few hidden ones. Have a look around.</Muted>
+        </p>
+      </div>
+    ),
+    whoami: () => (
+      <p>
+        {profile.fullName} — {profile.role.toLowerCase()}.{" "}
+        <Muted>Writes code, reads docs, ships things.</Muted>
+      </p>
+    ),
+    about: () => (
+      <div className="space-y-2">
+        {about.paragraphs.map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
+      </div>
+    ),
+    stack: () => (
+      <div className="grid grid-cols-[6.5rem_1fr] gap-x-2">
+        {stack.map((s, i) => (
+          <div key={i} className="contents">
+            <Accent>{s.group}</Accent>
+            <span>{s.items.join(", ")}</span>
           </div>
         ))}
       </div>
-      <p className="mt-2">
-        <Muted>…and a few hidden ones. Have a look around.</Muted>
-      </p>
-    </div>
-  ),
-  whoami: () => (
-    <p>
-      {profile.fullName} — {profile.role.toLowerCase()}.{" "}
-      <Muted>Writes code, reads docs, ships things.</Muted>
-    </p>
-  ),
-  about: () => (
-    <div className="space-y-2">
-      {about.paragraphs.map((p) => (
-        <p key={p}>{p}</p>
-      ))}
-    </div>
-  ),
-  stack: () => (
-    <div className="grid grid-cols-[6.5rem_1fr] gap-x-2">
-      {stack.map((s) => (
-        <div key={s.group} className="contents">
-          <Accent>{s.group}</Accent>
-          <span>{s.items.join(", ")}</span>
-        </div>
-      ))}
-    </div>
-  ),
-  projects: () => (
-    <div>
-      {projects.map((p) => (
-        <p key={p.title}>
-          <Muted>drwxr-xr-x {p.year}</Muted> <Accent>{p.title.toLowerCase().replace(/\s+/g, "-")}/</Accent>
+    ),
+    projects: () => (
+      <div>
+        {projects.map((p, i) => (
+          <p key={i}>
+            <Muted>drwxr-xr-x {p.year}</Muted> <Accent>{p.title.toLowerCase().replace(/\s+/g, "-")}/</Accent>
+          </p>
+        ))}
+        <p className="mt-1">
+          <Muted>Details in the </Muted>
+          <Link href="#work">work section</Link>
+          <Muted>.</Muted>
         </p>
-      ))}
-      <p className="mt-1">
-        <Muted>Details in the </Muted>
-        <Link href="#work">work section</Link>
-        <Muted>.</Muted>
-      </p>
-    </div>
-  ),
-  experience: () => (
-    <div>
-      {experience.map((e) => (
-        <p key={e.period + e.role}>
-          <Muted>{e.period.padEnd(16, " ")}</Muted> {e.role} <Muted>@ {e.company}</Muted>
-        </p>
-      ))}
-    </div>
-  ),
-  contact: () => (
-    <div>
-      <p>
-        <Accent>email</Accent> <Link href={`mailto:${profile.email}`}>{profile.email}</Link>
-      </p>
-      {socials.map((s) => (
-        <p key={s.label}>
-          <Accent>{s.label.toLowerCase()}</Accent> <Link href={s.href}>{s.href.replace(/^https?:\/\//, "")}</Link>
-        </p>
-      ))}
-    </div>
-  ),
-  achievements: () => {
-    const unlocked = getUnlocked();
-    return (
+      </div>
+    ),
+    experience: () => (
+      <div>
+        {experience.map((e, i) => (
+          <p key={i}>
+            <Muted>{e.period.padEnd(16, " ")}</Muted> {e.role} <Muted>@ {e.company}</Muted>
+          </p>
+        ))}
+      </div>
+    ),
+    contact: () => (
       <div>
         <p>
-          Unlocked <Accent>{unlocked.length}</Accent>/{ACHIEVEMENTS.length}
+          <Accent>email</Accent> <Link href={`mailto:${profile.email}`}>{profile.email}</Link>
         </p>
-        {ACHIEVEMENTS.map((a) => {
-          const got = unlocked.includes(a.id);
-          return (
-            <p key={a.id}>
-              {got ? <Accent>[✓]</Accent> : <Muted>[ ]</Muted>} {got ? a.title : <Muted>??? — {a.hint}</Muted>}
-            </p>
-          );
-        })}
+        {socials.map((s, i) => (
+          <p key={i}>
+            <Accent>{s.label.toLowerCase()}</Accent> <Link href={s.href}>{s.href.replace(/^https?:\/\//, "")}</Link>
+          </p>
+        ))}
       </div>
-    );
-  },
-  theme: () => {
-    const next = toggleTheme();
-    return <p>Switched to {next} mode.</p>;
-  },
-  date: () => <p>{new Date().toString()}</p>,
-  fortune: () => <p>{FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}</p>,
-  ls: () => <p><Accent>about.txt</Accent>  <Accent>projects/</Accent>  <Accent>experience.log</Accent>  <Muted>.secrets</Muted></p>,
-  "ls -a": () => COMMANDS.ls(),
-  "cat about.txt": () => COMMANDS.about(),
-  "cat experience.log": () => COMMANDS.experience(),
-  "cd projects": () => COMMANDS.projects(),
-  "cat .secrets": () => <p>I actually enjoy writing documentation. Don&apos;t tell anyone. <Muted>(also: try the Konami code)</Muted></p>,
-  "sudo hire raf": () => {
-    unlock("sudo");
-    return (
-      <div>
-        <p><Muted>[sudo] password for recruiter: ********</Muted></p>
-        <p><Accent>✓ Access granted.</Accent> Great choice.</p>
-        <p>Next step: <Link href={`mailto:${profile.email}?subject=Let's work together`}>{profile.email}</Link></p>
-      </div>
-    );
-  },
-  sudo: () => <p>Nice try. This incident will be reported. <Muted>(hint: sudo hire {profile.name.toLowerCase()})</Muted></p>,
-  "rm -rf /": () => <p>Permission denied. This portfolio is load-bearing.</p>,
-  "git push --force": () => <p>Whoa there. Not on main, friend.</p>,
-  vim: () => <p>You are now trapped in vim. <Muted>Just kidding — type :q to pretend to leave.</Muted></p>,
-  ":q": () => <p>Escaped vim. Few have done it.</p>,
-  ping: () => <p>pong <Muted>— 0.4 ms, faster than my first API</Muted></p>,
-  coffee: () => (
-    <pre className="leading-tight">{`   ( (
-    ) )
-  ........
-  |      |]
-  \\      /
-   \`----'   brewing… done.`}</pre>
-  ),
-  exit: () => <p>There is no exit. Only <Accent>contact</Accent>.</p>,
-  hello: () => <p>Hey there 👋</p>,
-};
-COMMANDS.hi = COMMANDS.hello;
-COMMANDS.skills = COMMANDS.stack;
-COMMANDS.work = COMMANDS.projects;
-COMMANDS.dir = COMMANDS.ls;
+    ),
+    achievements: () => {
+      const unlocked = getUnlocked();
+      return (
+        <div>
+          <p>
+            Unlocked <Accent>{unlocked.length}</Accent>/{ACHIEVEMENTS.length}
+          </p>
+          {ACHIEVEMENTS.map((a) => {
+            const got = unlocked.includes(a.id);
+            return (
+              <p key={a.id}>
+                {got ? <Accent>[✓]</Accent> : <Muted>[ ]</Muted>} {got ? a.title : <Muted>??? — {a.hint}</Muted>}
+              </p>
+            );
+          })}
+        </div>
+      );
+    },
+    theme: () => {
+      const next = toggleTheme();
+      return <p>Switched to {next} mode.</p>;
+    },
+    date: () => <p>{new Date().toString()}</p>,
+    fortune: () => <p>{FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}</p>,
+    ls: () => <p><Accent>about.txt</Accent>  <Accent>projects/</Accent>  <Accent>experience.log</Accent>  <Muted>.secrets</Muted></p>,
+    "ls -a": () => COMMANDS.ls(),
+    "cat about.txt": () => COMMANDS.about(),
+    "cat experience.log": () => COMMANDS.experience(),
+    "cd projects": () => COMMANDS.projects(),
+    "cat .secrets": () => <p>I actually enjoy writing documentation. Don&apos;t tell anyone. <Muted>(also: try the Konami code)</Muted></p>,
+    "sudo hire raf": () => {
+      unlock("sudo");
+      return (
+        <div>
+          <p><Muted>[sudo] password for recruiter: ********</Muted></p>
+          <p><Accent>✓ Access granted.</Accent> Great choice.</p>
+          <p>Next step: <Link href={`mailto:${profile.email}?subject=Let's work together`}>{profile.email}</Link></p>
+        </div>
+      );
+    },
+    sudo: () => <p>Nice try. This incident will be reported. <Muted>(hint: sudo hire {profile.name.toLowerCase()})</Muted></p>,
+    "rm -rf /": () => <p>Permission denied. This portfolio is load-bearing.</p>,
+    "git push --force": () => <p>Whoa there. Not on main, friend.</p>,
+    vim: () => <p>You are now trapped in vim. <Muted>Just kidding — type :q to pretend to leave.</Muted></p>,
+    ":q": () => <p>Escaped vim. Few have done it.</p>,
+    ping: () => <p>pong <Muted>— 0.4 ms, faster than my first API</Muted></p>,
+    coffee: () => (
+      <pre className="leading-tight">{`   ( (
+      ) )
+    ........
+    |      |]
+    \\      /
+     \`----'   brewing… done.`}</pre>
+    ),
+    exit: () => <p>There is no exit. Only <Accent>contact</Accent>.</p>,
+    hello: () => <p>Hey there 👋</p>,
+  };
+  COMMANDS.hi = COMMANDS.hello;
+  COMMANDS.skills = COMMANDS.stack;
+  COMMANDS.work = COMMANDS.projects;
+  COMMANDS.dir = COMMANDS.ls;
+  return COMMANDS;
+}
 
-const COMPLETIONS = [...Object.keys(COMMANDS), "snake", "clear"];
-const PROMPT_USER = `guest@${profile.name.toLowerCase()}`;
-
-function Prompt() {
+function Prompt({ user }) {
   return (
     <span className="shrink-0 select-none">
-      <Accent>{PROMPT_USER}</Accent>
+      <Accent>{user}</Accent>
       <Muted>:~$</Muted>{" "}
     </span>
   );
@@ -188,7 +187,10 @@ function Prompt() {
 
 let lineId = 0;
 
-export default function Terminal() {
+export default function Terminal({ content }) {
+  const commands = useMemo(() => buildCommands(content), [content]);
+  const completions = [...Object.keys(commands), "snake", "clear"];
+  const promptUser = `guest@${(content.profile.name || "guest").toLowerCase()}`;
   const [lines, setLines] = useState([]);
   const [value, setValue] = useState("");
   const [history, setHistory] = useState([]);
@@ -216,10 +218,10 @@ export default function Terminal() {
     }
     let output = null;
     if (cmd) {
-      const handler = COMMANDS[cmd.toLowerCase()];
+      const handler = commands[cmd.toLowerCase()];
       if (handler) output = handler();
       else if (cmd.startsWith("echo ")) output = <p>{cmd.slice(5)}</p>;
-      else if (cmd.startsWith("sudo ")) output = COMMANDS.sudo();
+      else if (cmd.startsWith("sudo ")) output = commands.sudo();
       else
         output = (
           <p>
@@ -315,7 +317,7 @@ export default function Terminal() {
         setValue(history[i]);
       }
     } else if (e.key === "Tab") {
-      const match = value && COMPLETIONS.find((c) => c.startsWith(value.toLowerCase()));
+      const match = value && completions.find((c) => c.startsWith(value.toLowerCase()));
       if (match) {
         e.preventDefault();
         setValue(match);
@@ -336,7 +338,7 @@ export default function Terminal() {
         <span className="size-2.5 rounded-full bg-muted/30" />
         <span className="size-2.5 rounded-full bg-muted/30" />
         <span className="ml-2 font-mono text-xs text-muted">
-          {PROMPT_USER} — {mode === "snake" ? "snake (esc to quit)" : "zsh"}
+          {promptUser} — {mode === "snake" ? "snake (esc to quit)" : "zsh"}
         </span>
       </div>
 
@@ -357,14 +359,14 @@ export default function Terminal() {
               </div>
             ) : (
               <div key={line.id} className="flex">
-                <Prompt />
+                <Prompt user={promptUser} />
                 <span className="break-all">{line.cmd}</span>
               </div>
             )
           )}
 
           <label className="group flex items-center">
-            <Prompt />
+            <Prompt user={promptUser} />
             <span className="sr-only">Terminal command</span>
             <span className="relative flex-1">
               <input
