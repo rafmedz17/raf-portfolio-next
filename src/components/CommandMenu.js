@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { navLinks } from "@/data/nav";
-import { openAchievements, playSnake, toggleTheme } from "@/lib/theme";
+import { openAchievements, openResume, playSnake, resumeFileName, toggleTheme } from "@/lib/theme";
 import { unlock } from "@/lib/achievements";
 
 function buildActions(profile, socials) {
@@ -15,6 +15,22 @@ function buildActions(profile, socials) {
     { group: "Navigate", label: "Back to top", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
     { group: "Actions", label: "Copy email address", hint: profile.email, run: () => navigator.clipboard?.writeText(profile.email) },
     { group: "Actions", label: "Send an email", run: () => (window.location.href = `mailto:${profile.email}`) },
+    ...(profile.resume && profile.resume !== "#"
+      ? [
+          { group: "Actions", label: "View résumé", run: openResume },
+          {
+            group: "Actions",
+            label: "Download résumé",
+            hint: "PDF",
+            run: () => {
+              const a = document.createElement("a");
+              a.href = profile.resume;
+              a.download = resumeFileName(profile.fullName || profile.name);
+              a.click();
+            },
+          },
+        ]
+      : []),
     { group: "Actions", label: "Toggle theme", run: toggleTheme },
     {
       group: "Fun",

@@ -2,6 +2,7 @@ import { navLinks } from "@/data/nav";
 import ThemeToggle from "./ThemeToggle";
 import CommandButton from "./CommandButton";
 import ActivePath from "./ActivePath";
+import ResumeButton from "./ResumeButton";
 
 export default function Nav({ profile }) {
   return (
@@ -18,6 +19,13 @@ export default function Nav({ profile }) {
                 </a>
               </li>
             ))}
+            {profile.resume && profile.resume !== "#" && (
+              <li>
+                <ResumeButton className="rounded-full border border-line px-3 py-1 text-xs text-fg transition-colors hover:border-accent hover:text-accent">
+                  Résumé
+                </ResumeButton>
+              </li>
+            )}
           </ul>
           <CommandButton />
           <ThemeToggle />

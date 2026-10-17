@@ -74,7 +74,7 @@ export const SECTIONS = [
         title: "Contact",
         fields: [
           { path: "profile.email", label: "Email address", type: "email", required: true, placeholder: "you@example.com" },
-          { path: "profile.resume", label: "Résumé link", type: "url", placeholder: "https://…/resume.pdf", help: "Optional. Leave empty to hide the link." },
+          { path: "profile.resume", label: "Résumé (PDF)", type: "pdf", placeholder: "/files/resume.pdf", help: "Visitors can read it on your site and download it. Leave empty to hide the résumé buttons." },
         ],
       },
       {

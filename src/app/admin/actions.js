@@ -85,6 +85,25 @@ export async function uploadImage(dataUrl) {
   }
 }
 
+const MAX_PDF = 4 * 1024 * 1024;
+
+// Takes a PDF as a data URL (used for the résumé).
+export async function uploadDocument(dataUrl) {
+  if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
+  const match = /^data:application\/pdf;base64,(.+)$/.exec(String(dataUrl ?? ""));
+  if (!match) return { ok: false, error: "Please choose a PDF file." };
+
+  const bytes = Buffer.from(match[1], "base64");
+  if (bytes.length > MAX_PDF) return { ok: false, error: "That PDF is too large (4 MB max)." };
+  if (bytes.subarray(0, 5).toString() !== "%PDF-") return { ok: false, error: "That file isn't a valid PDF." };
+
+  try {
+    return { ok: true, url: await writeUpload(bytes, "pdf", "resume"), mode: storageMode() };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ── Content ───────────────────────────────────────────────────
 
 export async function saveContent(content) {

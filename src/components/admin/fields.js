@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import { uploadImage } from "@/app/admin/actions";
+import { uploadDocument, uploadImage } from "@/app/admin/actions";
 import Icon from "./Icon";
 import { getIn } from "./schema";
 
@@ -254,6 +254,141 @@ function ImageField({ id, field, value, onChange, error }) {
   );
 }
 
+const readAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Couldn't read that file."));
+    reader.readAsDataURL(file);
+  });
+
+function PdfField({ id, field, value, onChange, error }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef(null);
+  const hasFile = value && value !== "#";
+
+  const upload = async (file) => {
+    if (!file) return;
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setMessage({ type: "error", text: "Please choose a PDF file." });
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setMessage({ type: "error", text: "That PDF is too large (4 MB max). Try exporting it again with smaller images." });
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      const dataUrl = (await readAsDataUrl(file)).replace(/^data:[^;]*;/, "data:application/pdf;");
+      const result = await uploadDocument(dataUrl);
+      if (!result.ok) throw new Error(result.error);
+      onChange(result.url);
+      setMessage({
+        type: "ok",
+        text:
+          result.mode === "github"
+            ? `Uploaded ${file.name}. Save, and it's live after the rebuild (1–2 min).`
+            : `Uploaded ${file.name}! Hit Save to keep it.`,
+      });
+    } catch (err) {
+      setMessage({ type: "error", text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        upload(e.dataTransfer.files?.[0]);
+      }}
+      className={`rounded-lg border p-3 transition ${dragging ? "border-accent bg-accent-soft" : error ? "border-red-500/70" : "border-line"}`}
+    >
+      <div className="flex items-center gap-3">
+        <span className={`relative grid h-14 w-11 shrink-0 place-items-center rounded-md border font-mono text-[10px] font-semibold ${hasFile ? "border-red-500/30 bg-red-500/10 text-red-500" : "border-line bg-surface text-muted"}`}>
+          PDF
+          {busy && (
+            <span className="absolute inset-0 grid place-items-center rounded-md bg-bg/80">
+              <span className="size-4 animate-spin rounded-full border-2 border-muted/30 border-t-accent" />
+            </span>
+          )}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{hasFile ? value.split("/").pop() : "No résumé yet"}</p>
+          <p className="text-xs text-muted">{hasFile ? "Visitors can view and download this." : "Upload a PDF or drag it here."}</p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="flex h-8 items-center gap-1.5 rounded-md bg-fg px-3 text-xs font-medium text-bg transition hover:opacity-85 disabled:opacity-50"
+        >
+          <Icon name="upload" className="size-3.5" />
+          {hasFile ? "Replace PDF" : "Upload PDF"}
+        </button>
+        {hasFile && (
+          <>
+            <a
+              href={value}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-line px-3 text-xs text-muted transition hover:text-fg"
+            >
+              <Icon name="eye" className="size-3.5" /> Preview
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                onChange("");
+                setMessage(null);
+              }}
+              className="flex h-8 items-center gap-1.5 rounded-md border border-line px-3 text-xs text-muted transition hover:text-red-500"
+            >
+              <Icon name="trash" className="size-3.5" /> Remove
+            </button>
+          </>
+        )}
+      </div>
+
+      {message && (
+        <p className={`mt-2 text-xs ${message.type === "error" ? "text-red-500" : "text-accent"}`}>{message.text}</p>
+      )}
+
+      <input
+        id={id}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={field.placeholder}
+        className="mt-2 w-full truncate bg-transparent font-mono text-[11px] text-muted outline-none focus:text-fg"
+        aria-label="Résumé file path or link"
+      />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/pdf,.pdf"
+        className="hidden"
+        onChange={(e) => {
+          upload(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
 export function Field({ field, value, onChange, error }) {
   const id = useId();
 
@@ -273,6 +408,8 @@ export function Field({ field, value, onChange, error }) {
     );
   } else if (field.type === "tags") {
     control = <TagInput id={id} field={field} value={value} onChange={onChange} error={error} />;
+  } else if (field.type === "pdf") {
+    control = <PdfField id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else if (field.type === "image") {
     control = <ImageField id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else if (field.type === "timezone") {

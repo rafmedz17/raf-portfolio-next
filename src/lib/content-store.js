@@ -81,10 +81,10 @@ export async function writeContent(content) {
   throw new Error("Saving isn't set up on this server. See ADMIN.md to connect GitHub.");
 }
 
-// Saves an uploaded image under public/uploads and returns its public URL.
-// `bytes` is a Buffer; `ext` is "jpg" | "png" | "webp".
-export async function writeUpload(bytes, ext) {
-  const name = `photo-${Date.now()}.${ext}`;
+// Saves an uploaded file under public/uploads and returns its public URL.
+// `bytes` is a Buffer; `ext` is e.g. "jpg" or "pdf"; `prefix` names the file.
+export async function writeUpload(bytes, ext, prefix = "photo") {
+  const name = `${prefix}-${Date.now()}.${ext}`;
   const repoPath = `public/uploads/${name}`;
   const mode = storageMode();
 

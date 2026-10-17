@@ -3,9 +3,11 @@ import LocalTime from "./LocalTime";
 import ScrambleText from "./ScrambleText";
 import RotatingWords from "./RotatingWords";
 import Spotlight from "./Spotlight";
+import ResumeButton from "./ResumeButton";
 
 export default function Hero({ content }) {
   const { profile, socials } = content;
+  const hasResume = profile.resume && profile.resume !== "#";
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="dot-grid pointer-events-none absolute inset-0" aria-hidden="true" />
@@ -49,6 +51,14 @@ export default function Hero({ content }) {
             >
               Get in touch
             </a>
+            {hasResume && (
+              <ResumeButton className="group inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted transition-colors hover:text-fg">
+                <svg viewBox="0 0 24 24" className="size-4 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 4v12m-5-5 5 5 5-5M4 20h16" />
+                </svg>
+                Résumé
+              </ResumeButton>
+            )}
           </div>
 
           <dl className="hero-in mt-10 flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs text-muted" style={{ "--d": 4 }}>

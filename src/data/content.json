@@ -19,7 +19,7 @@
     "timeZone": "Asia/Manila",
     "available": true,
     "availability": "Open to new opportunities",
-    "resume": ""
+    "resume": "/files/resume.pdf"
   },
   "socials": [
     {
@@ -28,7 +28,7 @@
     },
     {
       "label": "LinkedIn",
-      "href": "#"
+      "href": "https://www.linkedin.com/in/rafael-medina-bb6964444/"
     }
   ],
   "about": {
@@ -39,11 +39,11 @@
     "now": [
       {
         "label": "Building",
-        "value": "this portfolio, again"
+        "value": "this portfolio"
       },
       {
         "label": "Learning",
-        "value": "Go & distributed systems"
+        "value": "next.js"
       },
       {
         "label": "Reading",
@@ -51,7 +51,7 @@
       },
       {
         "label": "Fueled by",
-        "value": "black coffee"
+        "value": "caramel macchiato"
       }
     ]
   },

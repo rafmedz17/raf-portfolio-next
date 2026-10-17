@@ -27,6 +27,11 @@ export const openCommandMenu = () => emit("open-command-menu");
 export const openAchievements = () => emit("open-achievements");
 export const playSnake = () => emit("play-snake");
 export const filterTech = (tech) => emit("filter-tech", tech);
+export const openResume = () => emit("open-resume");
+
+// "Rafael Vincent D. Medina" → "Rafael_Vincent_D_Medina_Resume.pdf"
+export const resumeFileName = (name) =>
+  `${(name || "My").trim().replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "")}_Resume.pdf`;
 
 export function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();

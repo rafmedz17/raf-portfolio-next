@@ -1,6 +1,7 @@
 import Reveal from "./Reveal";
 import CopyEmail from "./CopyEmail";
 import CommitForm from "./CommitForm";
+import ResumeButton from "./ResumeButton";
 
 export default function Contact({ profile, socials }) {
   return (
@@ -44,9 +45,9 @@ export default function Contact({ profile, socials }) {
               </a>
             ))}
             {profile.resume && profile.resume !== "#" && (
-              <a href={profile.resume} className="text-muted underline decoration-line underline-offset-4 hover:text-fg">
+              <ResumeButton className="text-muted underline decoration-line underline-offset-4 transition-colors hover:text-fg hover:decoration-accent">
                 Résumé
-              </a>
+              </ResumeButton>
             )}
           </Reveal>
         </div>

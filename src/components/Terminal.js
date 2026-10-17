@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { prefersReducedMotion, toggleTheme } from "@/lib/theme";
+import { openResume, prefersReducedMotion, toggleTheme } from "@/lib/theme";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import SnakeGame from "./SnakeGame";
 
@@ -20,6 +20,7 @@ const HELP = [
   ["projects", "selected work"],
   ["experience", "where I've worked"],
   ["contact", "how to reach me"],
+  ["resume", "view or download my résumé"],
   ["snake", "take a quick break"],
   ["achievements", "your progress on this site"],
   ["theme", "toggle light / dark"],
@@ -38,6 +39,7 @@ const FORTUNES = [
 ];
 
 function buildCommands({ profile, about, stack, projects, experience, socials }) {
+  const hasResume = profile.resume && profile.resume !== "#";
   const COMMANDS = {
     help: () => (
       <div>
@@ -137,7 +139,17 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
     },
     date: () => <p>{new Date().toString()}</p>,
     fortune: () => <p>{FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}</p>,
-    ls: () => <p><Accent>about.txt</Accent>  <Accent>projects/</Accent>  <Accent>experience.log</Accent>  <Muted>.secrets</Muted></p>,
+    ls: () => (
+      <p>
+        <Accent>about.txt</Accent>  <Accent>projects/</Accent>  <Accent>experience.log</Accent>
+        {hasResume && <>  <Accent>resume.pdf</Accent></>}  <Muted>.secrets</Muted>
+      </p>
+    ),
+    resume: () => {
+      if (!hasResume) return <p>resume.pdf: No such file or directory</p>;
+      setTimeout(openResume, 250);
+      return <p><Muted>Opening resume.pdf…</Muted></p>;
+    },
     "ls -a": () => COMMANDS.ls(),
     "cat about.txt": () => COMMANDS.about(),
     "cat experience.log": () => COMMANDS.experience(),
@@ -179,6 +191,10 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
   COMMANDS.work = COMMANDS.projects;
   COMMANDS.dir = COMMANDS.ls;
   COMMANDS.intro = COMMANDS.reboot;
+  COMMANDS["resume.pdf"] = COMMANDS.resume;
+  COMMANDS["open resume.pdf"] = COMMANDS.resume;
+  COMMANDS["cat resume.pdf"] = COMMANDS.resume;
+  COMMANDS.cv = COMMANDS.resume;
   return COMMANDS;
 }
 
