@@ -4,8 +4,16 @@ import { useEffect, useRef } from "react";
 import { cssVar } from "@/lib/theme";
 import { unlock } from "@/lib/achievements";
 import * as sound from "@/lib/sound";
+import { isGod } from "@/lib/god";
 
 const CELL = 14;
+// Milliseconds per move (lower = faster). God mode keeps a steady normal
+// speed (no speed-up from food) and boosts with turbo (hold Shift / hold a touch).
+const SPEED = {
+  normal: { start: 110, perFood: 4, fastest: 55 },
+  god: { start: 110, perFood: 0, fastest: 110 },
+};
+const TURBO = 1 / 8; // turbo divides the delay by 8 → ×8 speed
 const DIRS = {
   ArrowUp: [0, -1], w: [0, -1],
   ArrowDown: [0, 1], s: [0, 1],
@@ -37,6 +45,10 @@ export default function SnakeGame({ onExit }) {
 
     const colors = { accent: cssVar("--accent"), food: cssVar("--hash"), muted: cssVar("--muted"), line: cssVar("--line") };
     const mono = `${cssVar("--font-geist-mono")}, monospace`;
+    const god = isGod(); // invincible + faster snake in god mode
+    const tuning = god ? SPEED.god : SPEED.normal;
+    let turbo = false;
+    const delay = () => (god && turbo ? state.speed * TURBO : state.speed);
     let state;
     let best = 0;
     let timer;
@@ -52,7 +64,7 @@ export default function SnakeGame({ onExit }) {
     const reset = () => {
       const start = { x: Math.floor(cols / 3), y: Math.floor(rows / 2) };
       const snake = [start, { x: start.x - 1, y: start.y }, { x: start.x - 2, y: start.y }];
-      state = { snake, dir: [1, 0], queue: [], food: randomFood(snake), score: 0, over: false, speed: 110 };
+      state = { snake, dir: [1, 0], queue: [], food: randomFood(snake), score: 0, over: false, speed: tuning.start };
     };
 
     const draw = () => {
@@ -77,7 +89,8 @@ export default function SnakeGame({ onExit }) {
       ctx.font = `12px ${mono}`;
       ctx.fillStyle = colors.muted;
       ctx.textAlign = "right";
-      ctx.fillText(`score ${state.score}  best ${best}`, cols * CELL - 8, 16);
+      const speedLabel = god ? `${turbo ? "TURBO " : ""}speed ×${(SPEED.normal.start / delay()).toFixed(1)}  ` : "";
+      ctx.fillText(`${god ? "★ " : ""}${speedLabel}score ${state.score}  best ${best}`, cols * CELL - 8, 16);
 
       if (state.over) {
         ctx.textAlign = "center";
@@ -94,9 +107,11 @@ export default function SnakeGame({ onExit }) {
       if (state.over) return;
       if (state.queue.length) state.dir = state.queue.shift();
       const head = state.snake[0];
-      const next = { x: head.x + state.dir[0], y: head.y + state.dir[1] };
+      let next = { x: head.x + state.dir[0], y: head.y + state.dir[1] };
+      // God mode: walls wrap around and you can pass through yourself.
+      if (god) next = { x: (next.x + cols) % cols, y: (next.y + rows) % rows };
       const hitWall = next.x < 0 || next.y < 0 || next.x >= cols || next.y >= rows;
-      const hitSelf = state.snake.some((p) => p.x === next.x && p.y === next.y);
+      const hitSelf = !god && state.snake.some((p) => p.x === next.x && p.y === next.y);
       if (hitWall || hitSelf) {
         state.over = true;
         sound.gameOver();
@@ -110,12 +125,12 @@ export default function SnakeGame({ onExit }) {
         sound.blip(660 + state.score * 40);
         if (state.score >= 5) unlock("snake");
         state.food = randomFood(state.snake);
-        state.speed = Math.max(55, state.speed - 4);
+        state.speed = Math.max(tuning.fastest, state.speed - tuning.perFood);
       } else {
         state.snake.pop();
       }
       draw();
-      timer = setTimeout(step, state.speed);
+      timer = setTimeout(step, delay());
     };
 
     const start = () => {
@@ -137,7 +152,22 @@ export default function SnakeGame({ onExit }) {
       onExitRef.current(Math.max(best, state.score));
     };
 
+    const setTurbo = (on) => {
+      if (!god || turbo === on) return;
+      turbo = on;
+      if (on) sound.blip(1200);
+      if (!state.over) draw();
+    };
+
+    const onKeyUp = (e) => {
+      if (e.key === "Shift") setTurbo(false);
+    };
+
     const onKey = (e) => {
+      if (e.key === "Shift") {
+        setTurbo(true);
+        return;
+      }
       const dir = DIRS[e.key] ?? DIRS[e.key.toLowerCase()];
       if (dir) {
         e.preventDefault();
@@ -152,10 +182,14 @@ export default function SnakeGame({ onExit }) {
     };
 
     let touch = null;
+    let holdTimer;
     const onTouchStart = (e) => {
       touch = e.touches[0];
+      holdTimer = setTimeout(() => setTurbo(true), 250);
     };
     const onTouchEnd = (e) => {
+      clearTimeout(holdTimer);
+      setTurbo(false);
       if (!touch) return;
       const t = e.changedTouches[0];
       const dx = t.clientX - touch.clientX;
@@ -167,6 +201,7 @@ export default function SnakeGame({ onExit }) {
     };
 
     wrap.addEventListener("keydown", onKey);
+    wrap.addEventListener("keyup", onKeyUp);
     wrap.addEventListener("touchstart", onTouchStart, { passive: true });
     wrap.addEventListener("touchend", onTouchEnd);
     wrap.focus({ preventScroll: true });
@@ -174,7 +209,9 @@ export default function SnakeGame({ onExit }) {
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(holdTimer);
       wrap.removeEventListener("keydown", onKey);
+      wrap.removeEventListener("keyup", onKeyUp);
       wrap.removeEventListener("touchstart", onTouchStart);
       wrap.removeEventListener("touchend", onTouchEnd);
     };

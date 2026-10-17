@@ -71,7 +71,7 @@ export default function About({ profile, about, stack, projects }) {
   return (
     <section id="about" className="border-t border-line">
       <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 md:py-32">
-        <SectionHeading index="01" label="about" title="Practical engineer. Pragmatic about tools, picky about quality." />
+        <SectionHeading index="01" label="about" note="about" title="Practical engineer. Pragmatic about tools, picky about quality." />
 
         {profile.photo ? (
           <div className="grid gap-14 md:grid-cols-[260px_1fr] md:gap-16 lg:grid-cols-[300px_1fr]">

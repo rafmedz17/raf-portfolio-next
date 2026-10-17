@@ -2,6 +2,7 @@ import Reveal from "./Reveal";
 import CopyEmail from "./CopyEmail";
 import CommitForm from "./CommitForm";
 import ResumeButton from "./ResumeButton";
+import DevNote from "./DevNote";
 
 export default function Contact({ profile, socials }) {
   return (
@@ -11,6 +12,7 @@ export default function Contact({ profile, socials }) {
           <Reveal>
             <p className="font-mono text-xs text-muted">
               <span className="text-accent">04</span> / contact
+              <DevNote id="contact" className="ml-3" />
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight text-balance md:text-5xl">
               Have a project or a role in mind?{" "}

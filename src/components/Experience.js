@@ -12,7 +12,7 @@ export default function Experience({ experience }) {
   return (
     <section id="experience" className="border-t border-line">
       <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 md:py-32">
-        <SectionHeading index="03" label="experience" title="git log --career" />
+        <SectionHeading index="03" label="experience" note="experience" title="git log --career" />
 
         <ol className="relative font-mono text-sm">
           {experience.map((job, i) => (

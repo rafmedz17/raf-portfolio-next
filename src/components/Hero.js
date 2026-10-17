@@ -4,6 +4,7 @@ import ScrambleText from "./ScrambleText";
 import RotatingWords from "./RotatingWords";
 import ResumeButton from "./ResumeButton";
 import ContactButton from "./ContactButton";
+import DevNote from "./DevNote";
 
 export default function Hero({ content }) {
   const { profile, socials } = content;
@@ -23,13 +24,24 @@ export default function Hero({ content }) {
               {profile.availability}
             </p>
           )}
+          <DevNote id="headline" className="ml-3" />
 
           <h1 className="hero-in mt-6 text-4xl font-semibold tracking-tight sm:text-5xl" style={{ "--d": 1 }}>
             Hi, I&apos;m{" "}
             <ScrambleText text={profile.name} hover replayOn="intro:done" className="cursor-default" />.
-            <span className="mt-2 block text-muted">
-              {profile.headlinePrefix}{" "}
-              <RotatingWords words={profile.headlineWords} className="text-fg" />
+            {/* Every version of the line is stacked in one grid cell (only the
+                live one is visible), so the headline always reserves the
+                height of its tallest version and never makes the page jump. */}
+            <span className="mt-2 grid text-muted">
+              {profile.headlineWords.filter(Boolean).map((word, i) => (
+                <span key={i} className="invisible [grid-area:1/1]" aria-hidden="true">
+                  {profile.headlinePrefix} <span>{word}</span>
+                </span>
+              ))}
+              <span className="[grid-area:1/1]">
+                {profile.headlinePrefix}{" "}
+                <RotatingWords words={profile.headlineWords} className="text-fg" />
+              </span>
             </span>
           </h1>
 
@@ -91,7 +103,8 @@ export default function Hero({ content }) {
           </dl>
         </div>
 
-        <div className="hero-in" style={{ "--d": 3 }}>
+        <div className="hero-in relative" style={{ "--d": 3 }}>
+          <DevNote id="terminal" align="right" className="absolute -top-9 right-0" />
           <Terminal content={content} />
         </div>
       </div>

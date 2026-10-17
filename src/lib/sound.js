@@ -149,6 +149,54 @@ function noiseHit({ at, dur, gain = 0.2, type = "bandpass", freq = 2000, to, q =
   src.stop(at + attack + dur + 0.05);
 }
 
+// ── 8-bit mode (god mode) ─────────────────────────────────────
+
+// In god mode every effect switches to a chiptune version.
+const retro = () => typeof document !== "undefined" && document.documentElement.hasAttribute("data-god");
+
+// Quick square-wave arpeggio.
+function chip(notes, { step = 0.06, dur = 0.07, gain = 0.05, type = "square" } = {}) {
+  const at = ctx.currentTime;
+  notes.forEach((freq, i) => tone({ type, freq, at: at + i * step, dur, gain, lowpass: 6000 }));
+}
+
+const RETRO = {
+  click: () => chip([1200], { dur: 0.03, gain: 0.04 }),
+  navigate: () => chip([880, 660, 440], { step: 0.04, dur: 0.05 }),
+  launch: () => chip([523.25, 659.25, 783.99, 1046.5, 1318.5], { step: 0.04, dur: 0.06 }),
+  mail: () => chip([1046.5, 1318.5], { step: 0.09, dur: 0.12 }),
+  open: () => chip([392, 523.25, 659.25, 783.99], { step: 0.05, dur: 0.08 }),
+  close: () => chip([783.99, 523.25, 392], { step: 0.05, dur: 0.07 }),
+  download: () => {
+    chip([1046.5, 783.99, 523.25], { step: 0.06, dur: 0.06 });
+    tone({ type: "square", freq: 130, at: ctx.currentTime + 0.2, dur: 0.12, gain: 0.06, lowpass: 900 });
+  },
+  success: () => chip([523.25, 659.25, 783.99, 1046.5], { step: 0.07, dur: 0.1 }),
+  achievement: () => chip([783.99, 1046.5, 1318.5, 1567.98, 2093], { step: 0.05, dur: 0.09, gain: 0.045 }),
+  error: () => chip([110, 98], { step: 0.1, dur: 0.12, gain: 0.07, type: "sawtooth" }),
+  gameOver: () => chip([440, 415.3, 392, 369.99, 349.23, 329.63], { step: 0.09, dur: 0.1 }),
+  tick: () => chip([2000], { dur: 0.015, gain: 0.03 }),
+  blip: (freq) => chip([freq, freq * 2], { step: 0.03, dur: 0.04 }),
+  chime: () => chip([659.25, 987.77], { step: 0.08, dur: 0.1 }),
+};
+
+// "Power on": rising arpeggio over a burst of static.
+export function powerOn() {
+  const c = ready();
+  if (!c) return;
+  noiseHit({ at: c.currentTime, dur: 0.45, gain: 0.12, type: "highpass", freq: 1500, q: 0.5 });
+  chip([261.63, 329.63, 392, 523.25, 659.25, 783.99, 1046.5], { step: 0.055, dur: 0.09, gain: 0.05 });
+}
+
+// "Power off": the classic CRT collapse — a falling whine and a click.
+export function powerOff() {
+  const c = ready();
+  if (!c) return;
+  const at = c.currentTime;
+  tone({ type: "sine", freq: 1400, to: 40, at, dur: 0.45, gain: 0.08 });
+  noiseHit({ at: at + 0.4, dur: 0.05, gain: 0.15, freq: 1200, q: 1 });
+}
+
 // ── Typing ────────────────────────────────────────────────────
 
 // Mechanical-keyboard click: a bright "tick" plus a soft "thock".
@@ -159,6 +207,11 @@ export function key(kind = "key", volume = 1) {
   const at = c.currentTime;
   if (at - lastKey < 0.018) return; // don't stack on key repeat
   lastKey = at;
+  if (retro()) {
+    const freq = { enter: 990, space: 220, back: 330, soft: 1500 }[kind] ?? 440 + Math.random() * 440;
+    tone({ type: "square", freq, at, dur: 0.025, gain: 0.04 * volume, lowpass: 5000 });
+    return;
+  }
 
   const vary = 1 + (Math.random() - 0.5) * 0.18;
   const pan = (Math.random() - 0.5) * 0.3;
@@ -187,18 +240,21 @@ export function keySound(e) {
 export function tick() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.tick();
   tone({ type: "square", freq: 1400 + Math.random() * 500, at: c.currentTime, dur: 0.025, gain: 0.05, lowpass: 4000 });
 }
 
 export function blip(freq = 880) {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.blip(freq);
   tone({ type: "square", freq, to: freq * 1.5, at: c.currentTime, dur: 0.06, gain: 0.06, lowpass: 3000 });
 }
 
 export function error() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.error();
   const at = c.currentTime;
   tone({ type: "square", freq: 196, at, dur: 0.08, gain: 0.07, lowpass: 1100 });
   tone({ type: "square", freq: 147, at: at + 0.1, dur: 0.14, gain: 0.07, lowpass: 1100 });
@@ -207,6 +263,7 @@ export function error() {
 export function success() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.success();
   const at = c.currentTime;
   [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) =>
     tone({ type: "triangle", freq, at: at + i * 0.07, dur: 0.3, gain: 0.07, wet: 0.35 })
@@ -216,6 +273,7 @@ export function success() {
 export function achievement() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.achievement();
   const at = c.currentTime;
   [783.99, 1046.5, 1318.5, 1567.98, 2093].forEach((freq, i) =>
     tone({ type: i % 2 ? "sine" : "triangle", freq, at: at + i * 0.055, dur: 0.5, gain: 0.05, wet: 0.6, pan: (i - 2) * 0.2 })
@@ -226,6 +284,7 @@ export function achievement() {
 export function click() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.click();
   const at = c.currentTime;
   noiseHit({ at, dur: 0.02, gain: 0.12, freq: 2600, q: 1.5 });
   tone({ type: "sine", freq: 900, to: 600, at, dur: 0.04, gain: 0.05 });
@@ -235,6 +294,7 @@ export function click() {
 export function navigate() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.navigate();
   const at = c.currentTime;
   noiseHit({ at, dur: 0.35, gain: 0.12, type: "lowpass", freq: 1800, to: 300, q: 0.8, wet: 0.2 });
   tone({ type: "sine", freq: 520, to: 260, at, dur: 0.2, gain: 0.04 });
@@ -244,6 +304,7 @@ export function navigate() {
 export function launch() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.launch();
   const at = c.currentTime;
   tone({ type: "sine", freq: 300, to: 1600, at, dur: 0.35, gain: 0.08, wet: 0.3 });
   noiseHit({ at, dur: 0.35, gain: 0.1, freq: 600, to: 4000, q: 1.2, wet: 0.3 });
@@ -255,6 +316,7 @@ export function launch() {
 export function mail() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.mail();
   const at = c.currentTime;
   tone({ type: "sine", freq: 1046.5, at, dur: 0.35, gain: 0.07, wet: 0.5 });
   tone({ type: "sine", freq: 1568, at: at + 0.09, dur: 0.5, gain: 0.06, wet: 0.5 });
@@ -264,6 +326,7 @@ export function mail() {
 export function open() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.open();
   const at = c.currentTime;
   noiseHit({ at, dur: 0.14, gain: 0.08, type: "highpass", freq: 3200, q: 0.7, rate: 0.6 });
   noiseHit({ at: at + 0.03, dur: 0.32, gain: 0.13, freq: 400, to: 2400, q: 1.2, wet: 0.3 });
@@ -276,6 +339,7 @@ export function open() {
 export function close() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.close();
   const at = c.currentTime;
   noiseHit({ at, dur: 0.22, gain: 0.1, freq: 2000, to: 400, q: 1.2, wet: 0.2 });
   tone({ type: "sine", freq: 587.33, to: 392, at, dur: 0.2, gain: 0.04 });
@@ -285,6 +349,7 @@ export function close() {
 export function download() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.download();
   const at = c.currentTime;
   [1318.5, 987.77, 783.99].forEach((freq, i) =>
     tone({ type: "triangle", freq, at: at + i * 0.06, dur: 0.08, gain: 0.05, wet: 0.2 })
@@ -296,12 +361,14 @@ export function download() {
 export function gameOver() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.gameOver();
   tone({ type: "sawtooth", freq: 440, to: 90, at: c.currentTime, dur: 0.55, gain: 0.08, lowpass: 1400 });
 }
 
 export function soundOnChime() {
   const c = ready();
   if (!c) return;
+  if (retro()) return RETRO.chime();
   const at = c.currentTime;
   tone({ type: "sine", freq: 659.25, at, dur: 0.18, gain: 0.08, wet: 0.3 });
   tone({ type: "sine", freq: 987.77, at: at + 0.08, dur: 0.3, gain: 0.08, wet: 0.3 });

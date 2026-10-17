@@ -11,6 +11,7 @@ import Intro from "./Intro";
 import ResumeViewer from "./ResumeViewer";
 import ClickFX from "./ClickFX";
 import Spotlight from "./Spotlight";
+import GodMode from "./GodMode";
 
 // Boot-log lines for the intro, built from the real content.
 function bootLines({ projects, experience, stack }) {
@@ -46,6 +47,7 @@ export default function Site({ content }) {
       <CommandMenu profile={profile} socials={socials} />
       <Extras profile={profile} />
       <ClickFX />
+      <GodMode />
       {profile.resume && profile.resume !== "#" && (
         <ResumeViewer url={profile.resume} name={profile.fullName || profile.name} />
       )}

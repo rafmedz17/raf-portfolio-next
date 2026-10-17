@@ -1,4 +1,5 @@
 import AchievementCounter from "./AchievementCounter";
+import DevNote from "./DevNote";
 
 export default function Footer({ profile }) {
   return (
@@ -12,6 +13,7 @@ export default function Footer({ profile }) {
             <span className="text-accent">tip:</span> press <kbd className="rounded border border-line px-1">Ctrl K</kbd>
           </p>
           <AchievementCounter />
+          <DevNote id="cms" align="right" side="top" />
         </div>
       </div>
     </footer>

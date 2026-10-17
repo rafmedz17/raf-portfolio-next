@@ -29,6 +29,8 @@ export const viewport = {
 // never for people who prefer reduced motion.
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
 const introScript = `try{if(${settings?.intro !== false}&&location.pathname==="/"&&!sessionStorage.getItem("intro-seen")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.intro="play"}catch(e){}`;
+// Keeps god mode (Konami cheat) on across reloads during the same visit.
+const godScript = `try{if(location.pathname==="/"&&sessionStorage.getItem("god")==="1")document.documentElement.setAttribute("data-god","")}catch(e){}`;
 
 export default function RootLayout({ children }) {
   return (
@@ -38,7 +40,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript + introScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript + introScript + godScript }} />
       </head>
       <body>{children}</body>
     </html>

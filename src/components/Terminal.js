@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { openResume, prefersReducedMotion, toggleTheme } from "@/lib/theme";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import SnakeGame from "./SnakeGame";
+import { isGod, setGod } from "@/lib/god";
 import * as sound from "@/lib/sound";
 
 const Muted = ({ children }) => <span className="text-muted">{children}</span>;
@@ -27,6 +28,21 @@ const HELP = [
   ["theme", "toggle light / dark"],
   ["reboot", "replay the intro"],
   ["clear", "clear the screen"],
+];
+
+const HIDDEN = [
+  ["sudo hire raf", "the best command"],
+  ["coffee", "brew a fresh cup"],
+  ["fortune", "developer wisdom"],
+  ["vim", "enter the trap"],
+  ["ping", "check the latency"],
+  ["ls", "list the files"],
+  ["cat .secrets", "a confession"],
+  ["rm -rf /", "go on, try it"],
+  ["git push --force", "on main?"],
+  ["echo <text>", "say something"],
+  ["iddqd", "god mode (Doom style)"],
+  ["exit god", "back to mortal life"],
 ];
 
 const FORTUNES = [
@@ -53,9 +69,23 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
             </div>
           ))}
         </div>
-        <p className="mt-2">
-          <Muted>…and a few hidden ones. Have a look around.</Muted>
-        </p>
+        {isGod() ? (
+          <div className="mt-2">
+            <p><Accent>★ god mode — hidden commands unlocked:</Accent></p>
+            <div className="mt-1 grid grid-cols-[7.5rem_1fr] gap-x-2">
+              {HIDDEN.map(([cmd, desc]) => (
+                <div key={cmd} className="contents">
+                  <Accent>★ {cmd}</Accent>
+                  <Muted>{desc}</Muted>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="mt-2">
+            <Muted>…and a few hidden ones. Have a look around.</Muted>
+          </p>
+        )}
       </div>
     ),
     whoami: () => (
@@ -127,7 +157,7 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
             const got = unlocked.includes(a.id);
             return (
               <p key={a.id}>
-                {got ? <Accent>[✓]</Accent> : <Muted>[ ]</Muted>} {got ? a.title : <Muted>??? — {a.hint}</Muted>}
+                {got ? <Accent>[✓]</Accent> : <Muted>[ ]</Muted>} {got ? a.title : <Muted>??? — {a.secret ? "secret achievement" : a.hint}</Muted>}
               </p>
             );
           })}
@@ -197,6 +227,19 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
   COMMANDS["open resume.pdf"] = COMMANDS.resume;
   COMMANDS["cat resume.pdf"] = COMMANDS.resume;
   COMMANDS.cv = COMMANDS.resume;
+  COMMANDS.iddqd = () => {
+    if (isGod()) return <p>Already invincible. <Muted>(exit god to turn it off)</Muted></p>;
+    setTimeout(() => setGod(true), 300);
+    return <p><Accent>★ god mode: on.</Accent> <Muted>Degreelessness achieved. Look for the dev notes.</Muted></p>;
+  };
+  COMMANDS.god = COMMANDS.iddqd;
+  COMMANDS["god mode"] = COMMANDS.iddqd;
+  COMMANDS["exit god"] = () => {
+    if (!isGod()) return <p>You&apos;re not a god yet. <Muted>(hint: ↑ ↑ ↓ ↓ ← → ← → B A, or iddqd)</Muted></p>;
+    setTimeout(() => setGod(false), 300);
+    return <p><Muted>god mode: off. Back to mortal life.</Muted></p>;
+  };
+  COMMANDS["god off"] = COMMANDS["exit god"];
   return COMMANDS;
 }
 
@@ -236,7 +279,7 @@ export default function Terminal({ content }) {
       return;
     }
     if (cmd === "snake") {
-      print({ cmd: raw }, { output: <p><Muted>Starting snake… arrows / WASD / swipe to move, esc to quit.</Muted></p> });
+      print({ cmd: raw }, { output: <p><Muted>Starting snake… arrows / WASD / swipe to move, esc to quit.</Muted>{isGod() && <> <Accent>★ god mode: hold Shift (or press and hold) for turbo.</Accent></>}</p> });
       setMode("snake");
       return;
     }
@@ -400,7 +443,7 @@ export default function Terminal({ content }) {
         <span className="size-2.5 rounded-full bg-muted/30" />
         <span className="size-2.5 rounded-full bg-muted/30" />
         <span className="ml-2 font-mono text-xs text-muted">
-          {promptUser} — {mode === "snake" ? "snake (esc to quit)" : "zsh"}
+          {promptUser} — {mode === "snake" ? (isGod() ? "snake ★ invincible (esc to quit)" : "snake (esc to quit)") : "zsh"}
         </span>
       </div>
 

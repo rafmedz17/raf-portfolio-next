@@ -4,6 +4,7 @@ import SoundToggle from "./SoundToggle";
 import CommandButton from "./CommandButton";
 import ActivePath from "./ActivePath";
 import ResumeButton from "./ResumeButton";
+import GodBadge from "./GodBadge";
 
 export default function Nav({ profile }) {
   return (
@@ -28,6 +29,7 @@ export default function Nav({ profile }) {
               </li>
             )}
           </ul>
+          <GodBadge />
           <CommandButton />
           <SoundToggle />
           <ThemeToggle />

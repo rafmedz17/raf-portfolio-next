@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import { prefersReducedMotion } from "@/lib/theme";
 import MatrixRain from "./MatrixRain";
+import { toggleGod } from "@/lib/god";
 
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 
@@ -45,7 +46,8 @@ export default function Extras({ profile }) {
       if (progress === KONAMI.length) {
         progress = 0;
         unlock("konami");
-        if (!prefersReducedMotion()) setMatrix(true);
+        // The cheat toggles god mode; the code rain plays when it turns on.
+        if (toggleGod() && !prefersReducedMotion()) setMatrix(true);
       }
     };
 
@@ -133,7 +135,7 @@ export default function Extras({ profile }) {
                     </span>
                     <div>
                       <p className="text-sm font-medium">{got ? a.title : "???"}</p>
-                      <p className="font-mono text-xs text-muted">{a.hint}</p>
+                      <p className="font-mono text-xs text-muted">{a.secret && !got ? "Secret achievement — keep exploring" : a.hint}</p>
                     </div>
                   </li>
                 );

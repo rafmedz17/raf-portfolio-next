@@ -8,6 +8,7 @@ export const ACHIEVEMENTS = [
   { id: "konami", title: "Old School", hint: "↑ ↑ ↓ ↓ ← → ← → B A" },
   { id: "explorer", title: "Explorer", hint: "Scroll to the very bottom" },
   { id: "contact", title: "Ship It", hint: "Push a commit to the inbox" },
+  { id: "god", title: "God Mode", hint: "Read every director's note in god mode", secret: true },
 ];
 
 const KEY = "achievements";
