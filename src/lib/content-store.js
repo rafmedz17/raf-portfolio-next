@@ -19,15 +19,22 @@ export function storageMode() {
 
 export function storageLabel() {
   const mode = storageMode();
-  if (mode === "github") return `GitHub · ${process.env.GITHUB_REPO}@${githubBranch()}`;
+  if (mode === "github") return `GitHub · ${githubRepo()}@${githubBranch()}`;
   if (mode === "file") return `Local file · ${FILE}`;
   return "Read-only (saving not set up)";
 }
 
-const githubBranch = () => process.env.GITHUB_BRANCH || "master";
+const githubBranch = () => process.env.GITHUB_BRANCH?.trim() || "master";
+
+// Accepts "owner/repo" as well as a pasted URL like https://github.com/owner/repo.git
+const githubRepo = () =>
+  process.env.GITHUB_REPO.trim()
+    .replace(/^(https?:\/\/)?(www\.)?github\.com\//i, "")
+    .replace(/\.git$/i, "")
+    .replace(/\/+$/, "");
 
 async function github(init = {}, filePath = FILE) {
-  const url = `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${filePath}`;
+  const url = `https://api.github.com/repos/${githubRepo()}/contents/${filePath}`;
   const res = await fetch(init.method ? url : `${url}?ref=${githubBranch()}`, {
     ...init,
     cache: "no-store",
@@ -39,6 +46,12 @@ async function github(init = {}, filePath = FILE) {
     },
   });
   if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(
+        `GitHub responded 404 for ${githubRepo()}@${githubBranch()}. Check GITHUB_REPO and GITHUB_BRANCH, ` +
+          `and that GITHUB_TOKEN has access to this repo (private repos return 404 when it doesn't).`
+      );
+    }
     const detail = await res.text().catch(() => "");
     throw new Error(`GitHub responded ${res.status}. ${detail.slice(0, 200)}`);
   }

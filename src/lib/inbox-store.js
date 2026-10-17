@@ -12,10 +12,19 @@ const FILE = path.join(process.cwd(), ".data", "inbox.json");
 const HASH = "inbox:messages";
 const LIMIT_PER_HOUR = 5;
 
+// Also finds renamed variables (e.g. MESSAGE_KV_REST_API_URL or MESSAGE_REST_API_URL),
+// which Vercel creates when a custom prefix is set while connecting the database.
 function redisConfig() {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  return url && token ? { url, token } : null;
+  const exact = ["KV_REST_API_URL", "UPSTASH_REDIS_REST_URL"];
+  const prefixed = Object.keys(process.env)
+    .filter((k) => /REST(_API)?_URL$/.test(k) && !exact.includes(k))
+    .sort((a, b) => a.length - b.length);
+  for (const key of [...exact, ...prefixed]) {
+    const url = process.env[key]?.trim();
+    const token = process.env[key.replace(/URL$/, "TOKEN")]?.trim();
+    if (url && token && /upstash\.io/i.test(url)) return { url, token };
+  }
+  return null;
 }
 
 export function inboxMode() {
