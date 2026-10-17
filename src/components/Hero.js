@@ -4,6 +4,7 @@ import ScrambleText from "./ScrambleText";
 import RotatingWords from "./RotatingWords";
 import Spotlight from "./Spotlight";
 import ResumeButton from "./ResumeButton";
+import ContactButton from "./ContactButton";
 
 export default function Hero({ content }) {
   const { profile, socials } = content;
@@ -45,12 +46,9 @@ export default function Hero({ content }) {
             >
               See my work
             </a>
-            <a
-              href={`mailto:${profile.email}`}
-              className="inline-flex h-10 items-center rounded-md border border-line px-4 text-sm font-medium transition-colors hover:bg-surface"
-            >
+            <ContactButton className="inline-flex h-10 items-center rounded-md border border-line px-4 text-sm font-medium transition-colors hover:bg-surface">
               Get in touch
-            </a>
+            </ContactButton>
             {hasResume && (
               <ResumeButton className="group inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted transition-colors hover:text-fg">
                 <svg viewBox="0 0 24 24" className="size-4 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

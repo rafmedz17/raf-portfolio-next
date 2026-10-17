@@ -28,6 +28,7 @@ export const openAchievements = () => emit("open-achievements");
 export const playSnake = () => emit("play-snake");
 export const filterTech = (tech) => emit("filter-tech", tech);
 export const openResume = () => emit("open-resume");
+export const focusContact = () => emit("focus-contact");
 
 // "Rafael Vincent D. Medina" → "Rafael_Vincent_D_Medina_Resume.pdf"
 export const resumeFileName = (name) =>

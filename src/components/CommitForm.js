@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sendMessage } from "@/app/contact-actions";
 import { unlock } from "@/lib/achievements";
 import { prefersReducedMotion } from "@/lib/theme";
@@ -33,6 +33,31 @@ export default function CommitForm({ email, name }) {
   const [shake, setShake] = useState(false);
   const [pushing, setPushing] = useState(false);
   const [fallback, setFallback] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const formRef = useRef(null);
+  const nameRef = useRef(null);
+
+  // "Get in touch" (and friends) bring the visitor here, ready to type.
+  useEffect(() => {
+    let timers = [];
+    const onFocus = () => {
+      timers.forEach(clearTimeout);
+      formRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+      setFlash(false);
+      timers = [
+        setTimeout(() => {
+          setFlash(true);
+          nameRef.current?.focus({ preventScroll: true });
+        }, 450),
+        setTimeout(() => setFlash(false), 2000),
+      ];
+    };
+    window.addEventListener("focus-contact", onFocus);
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener("focus-contact", onFocus);
+    };
+  }, []);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -77,9 +102,10 @@ export default function CommitForm({ email, name }) {
 
   return (
     <form
+      ref={formRef}
       onSubmit={push}
       onKeyDown={sound.keySound}
-      className={`overflow-hidden rounded-xl border border-line bg-surface font-mono text-[13px] ${shake ? "shake" : ""}`}
+      className={`overflow-hidden rounded-xl border border-line bg-surface font-mono text-[13px] ${shake ? "shake" : ""} ${flash ? "form-flash" : ""}`}
     >
       <div className="flex items-center justify-between border-b border-line px-4 py-2.5 text-xs text-muted">
         <span>~/inbox (main)</span>
@@ -88,7 +114,7 @@ export default function CommitForm({ email, name }) {
 
       <div className="space-y-3 p-4">
         <GitLine command="git config user.name">
-          <input value={form.name} onChange={set("name")} placeholder='"Your name"' autoComplete="name" maxLength={100} className={field} />
+          <input ref={nameRef} value={form.name} onChange={set("name")} placeholder='"Your name"' autoComplete="name" maxLength={100} className={field} />
         </GitLine>
         <GitLine command="git config user.email">
           <input type="email" value={form.email} onChange={set("email")} placeholder='"you@example.com"' autoComplete="email" maxLength={200} required className={field} />

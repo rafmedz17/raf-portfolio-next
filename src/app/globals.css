@@ -528,6 +528,16 @@ html[data-intro="play"] .hero-in {
   animation: scan 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s both;
 }
 
+/* Contact form glow when "Get in touch" brings you to it */
+@keyframes form-flash {
+  0% { box-shadow: 0 0 0 0 var(--accent); border-color: var(--accent); }
+  40% { box-shadow: 0 0 0 6px var(--accent-soft), 0 0 40px -8px var(--accent); border-color: var(--accent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.form-flash {
+  animation: form-flash 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Blinking caret */
 .caret {
   display: inline-block;
