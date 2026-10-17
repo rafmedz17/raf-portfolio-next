@@ -17,6 +17,7 @@ export default function PreviewClient({ initialContent }) {
         document.getElementById(msg.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
       if (msg.type === "theme") document.documentElement.dataset.theme = msg.theme;
+      if (msg.type === "intro") window.dispatchEvent(new Event("intro:replay"));
     };
     window.addEventListener("message", onMessage);
     window.parent.postMessage({ type: "preview-ready" }, window.location.origin);

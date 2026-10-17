@@ -40,6 +40,18 @@ export const SECTIONS = [
           { path: "profile.timeZone", label: "Time zone", type: "timezone", placeholder: "Asia/Manila", help: "Powers the live clock in the hero. Start typing a city." },
         ],
       },
+      {
+        type: "fields",
+        title: "Cinematic intro",
+        fields: [
+          {
+            path: "settings.intro",
+            label: "Play the intro when someone opens the site",
+            type: "toggle",
+            help: "Plays once per visit and can be skipped with any key. It's skipped for people who turn off animations. Visitors can replay it by typing “reboot” in the terminal.",
+          },
+        ],
+      },
     ],
   },
   {

@@ -6,8 +6,8 @@ import { prefersReducedMotion } from "@/lib/theme";
 const GLYPHS = "!<>-_\\/[]{}=+*^?#$%&01abcdef";
 
 // Renders `text`, decrypting it from random glyphs whenever it changes
-// (and on hover, if `hover` is set).
-export default function ScrambleText({ text, hover = false, className = "" }) {
+// (and on hover if `hover` is set, or when the `replayOn` window event fires).
+export default function ScrambleText({ text, hover = false, replayOn, className = "" }) {
   const [display, setDisplay] = useState(text);
   const raf = useRef(0);
 
@@ -40,6 +40,13 @@ export default function ScrambleText({ text, hover = false, className = "" }) {
     scramble(text);
     return () => cancelAnimationFrame(raf.current);
   }, [text, scramble]);
+
+  useEffect(() => {
+    if (!replayOn) return;
+    const replay = () => scramble(text);
+    window.addEventListener(replayOn, replay);
+    return () => window.removeEventListener(replayOn, replay);
+  }, [replayOn, text, scramble]);
 
   return (
     <span

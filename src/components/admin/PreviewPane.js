@@ -85,6 +85,17 @@ export default function PreviewPane({ content, anchor }) {
         </span>
 
         <div className="flex items-center gap-1">
+          {content.settings?.intro !== false && (
+            <button
+              type="button"
+              onClick={() => send({ type: "intro" })}
+              title="Play the cinematic intro"
+              className="flex h-7 items-center gap-1 rounded-md px-2 text-xs text-muted hover:bg-surface hover:text-fg"
+            >
+              <Icon name="sparkle" className="size-3.5" />
+              <span className="hidden xl:inline">Play intro</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}

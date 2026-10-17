@@ -7,13 +7,29 @@ import Contact from "./Contact";
 import Footer from "./Footer";
 import CommandMenu from "./CommandMenu";
 import Extras from "./Extras";
+import Intro from "./Intro";
+
+// Boot-log lines for the intro, built from the real content.
+function bootLines({ projects, experience, stack }) {
+  const skills = stack.reduce((n, g) => n + g.items.length, 0);
+  return [
+    "mounting /dev/coffee",
+    `loading ${projects.length} project${projects.length === 1 ? "" : "s"}`,
+    `linking experience (${experience.length} commit${experience.length === 1 ? "" : "s"})`,
+    `indexing ${skills} skills`,
+    "compiling personality… done",
+  ];
+}
 
 // The whole public site, rendered from a content object. Used by the home
 // page (with saved content) and by the admin preview (with draft content).
 export default function Site({ content }) {
-  const { profile, socials, about, stack, projects, experience } = content;
+  const { profile, socials, about, stack, projects, experience, settings } = content;
   return (
     <>
+      {settings?.intro !== false && (
+        <Intro name={profile.name || "Hello"} role={profile.role} lines={bootLines(content)} />
+      )}
       <Nav profile={profile} />
       <main>
         <Hero content={content} />

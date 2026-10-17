@@ -3,5 +3,5 @@
 import content from "./content.json";
 
 export default content;
-export const { profile, socials, about, stack, projects, experience } = content;
+export const { profile, socials, about, stack, projects, experience, settings } = content;
 export { navLinks } from "./nav";

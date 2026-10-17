@@ -150,6 +150,223 @@ body {
   animation: shake 0.35s ease;
 }
 
+/* ── Cinematic intro ──────────────────────────────────────────
+   Phases (set on .intro[data-phase]): start → boot → title → exit.
+   Always dark, whatever the site theme, like a film opening. */
+.intro {
+  --i-bg: #0b0b0c;
+  --i-fg: #ececea;
+  --i-muted: #6b6b70;
+  --i-accent: #4ade80;
+  --ease-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  color: var(--i-fg);
+  cursor: default;
+  user-select: none;
+  /* Failsafe: never trap the page if scripts don't run. */
+  animation: intro-failsafe 0s linear 10s forwards;
+}
+html[data-intro] .intro {
+  display: block;
+}
+html[data-intro="play"] {
+  overflow: hidden;
+}
+@keyframes intro-failsafe {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.intro-accent { color: var(--i-accent); }
+.intro-muted { color: var(--i-muted); }
+
+/* Curtain halves */
+.intro-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  overflow: hidden;
+  background: var(--i-bg);
+  transition: transform 1s var(--ease-curtain);
+}
+.intro-panel-top { top: 0; }
+.intro-panel-bottom { bottom: 0; }
+.intro[data-phase="exit"] .intro-panel-top { transform: translateY(-101%); }
+.intro[data-phase="exit"] .intro-panel-bottom { transform: translateY(101%); }
+
+/* Film letterbox bars */
+.intro-letterbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10vh;
+  background: #000;
+  transform: scaleY(0);
+  transition: transform 0.9s var(--ease-out);
+}
+.intro-panel-top .intro-letterbox { top: 0; transform-origin: top; }
+.intro-panel-bottom .intro-letterbox { bottom: 0; transform-origin: bottom; }
+.intro[data-phase="boot"] .intro-letterbox,
+.intro[data-phase="title"] .intro-letterbox,
+.intro[data-phase="exit"] .intro-letterbox {
+  transform: scaleY(1);
+}
+
+/* Everything drawn on top of the curtain */
+.intro-content {
+  position: absolute;
+  inset: 0;
+  transition:
+    opacity 0.45s ease,
+    transform 0.7s var(--ease-out),
+    filter 0.45s ease;
+}
+.intro[data-phase="exit"] .intro-content {
+  opacity: 0;
+  transform: scale(1.05);
+  filter: blur(8px);
+}
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.55) 100%),
+    repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
+}
+
+/* Top row + progress */
+.intro-chrome {
+  color: var(--i-muted);
+  opacity: 0;
+  transition: opacity 0.6s ease 0.2s;
+}
+.intro[data-phase="boot"] .intro-chrome,
+.intro[data-phase="title"] .intro-chrome {
+  opacity: 1;
+}
+.intro-progress {
+  background: rgb(255 255 255 / 0.08);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.intro-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--i-accent);
+  box-shadow: 0 0 12px var(--i-accent);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+}
+.intro[data-phase="boot"] .intro-progress { opacity: 1; }
+
+/* Boot log */
+.intro-line {
+  white-space: pre;
+  color: var(--i-fg);
+  opacity: 0;
+  transform: translateY(6px);
+}
+.intro[data-phase="boot"] .intro-line {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s var(--ease-out);
+  transition-delay: calc(var(--i) * 210ms + 250ms);
+}
+.intro[data-phase="title"] .intro-boot {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.4s ease, transform 0.5s ease;
+}
+
+/* Title card */
+.intro-title {
+  opacity: 0;
+  pointer-events: none;
+}
+.intro[data-phase="title"] .intro-title,
+.intro[data-phase="exit"] .intro-title {
+  opacity: 1;
+}
+.intro-eyebrow {
+  color: var(--i-muted);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.intro-name {
+  letter-spacing: 0.35em;
+  opacity: 0;
+  filter: blur(12px);
+  transition:
+    letter-spacing 1.6s var(--ease-out),
+    filter 1s ease,
+    opacity 0.6s ease;
+}
+.intro-rule {
+  background: var(--i-accent);
+  box-shadow: 0 0 16px var(--i-accent);
+  transform: scaleX(0);
+  transition: transform 1s var(--ease-out) 0.5s;
+}
+.intro-role {
+  color: var(--i-muted);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.7s ease 0.8s,
+    transform 0.8s var(--ease-out) 0.8s;
+}
+.intro[data-phase="title"] .intro-eyebrow,
+.intro[data-phase="exit"] .intro-eyebrow { opacity: 1; }
+.intro[data-phase="title"] .intro-name,
+.intro[data-phase="exit"] .intro-name {
+  letter-spacing: -0.04em;
+  opacity: 1;
+  filter: none;
+}
+.intro[data-phase="title"] .intro-rule,
+.intro[data-phase="exit"] .intro-rule { transform: scaleX(1); }
+.intro[data-phase="title"] .intro-role,
+.intro[data-phase="exit"] .intro-role {
+  opacity: 1;
+  transform: none;
+}
+
+.intro-skip {
+  color: var(--i-muted);
+  opacity: 0;
+  transition: opacity 0.5s ease 0.8s;
+}
+.intro[data-phase="boot"] .intro-skip,
+.intro[data-phase="title"] .intro-skip {
+  opacity: 0.8;
+  animation: blink 2.2s ease-in-out infinite;
+}
+
+/* Hero entrance: waits behind the curtain, then plays as it opens. */
+.hero-in {
+  animation: hero-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--d, 0) * 90ms + 150ms);
+}
+html[data-intro="play"] .hero-in {
+  animation-play-state: paused;
+}
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+  }
+}
+
 /* Blinking caret */
 .caret {
   display: inline-block;
@@ -195,7 +412,8 @@ body {
   }
   .caret,
   .toast-in,
-  .shake {
+  .shake,
+  .hero-in {
     animation: none;
   }
   .spotlight {

@@ -14,7 +14,7 @@ export default function Hero({ content }) {
       <div className="relative mx-auto grid max-w-5xl gap-14 px-4 pt-20 pb-24 sm:px-6 md:pt-28 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-12">
         <div>
           {profile.available && (
-            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-bg px-3 py-1 font-mono text-xs text-muted">
+            <p className="hero-in inline-flex items-center gap-2 rounded-full border border-line bg-bg px-3 py-1 font-mono text-xs text-muted">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:hidden" />
                 <span className="relative inline-flex size-2 rounded-full bg-accent" />
@@ -23,20 +23,20 @@ export default function Hero({ content }) {
             </p>
           )}
 
-          <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+          <h1 className="hero-in mt-6 text-4xl font-semibold tracking-tight sm:text-5xl" style={{ "--d": 1 }}>
             Hi, I&apos;m{" "}
-            <ScrambleText text={profile.name} hover className="cursor-default" />.
+            <ScrambleText text={profile.name} hover replayOn="intro:done" className="cursor-default" />.
             <span className="mt-2 block text-muted">
               {profile.headlinePrefix}{" "}
               <RotatingWords words={profile.headlineWords} className="text-fg" />
             </span>
           </h1>
 
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted">
+          <p className="hero-in mt-6 max-w-lg text-base leading-relaxed text-muted" style={{ "--d": 2 }}>
             {profile.intro}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="hero-in mt-8 flex flex-wrap items-center gap-3" style={{ "--d": 3 }}>
             <a
               href="#work"
               className="inline-flex h-10 items-center rounded-md bg-fg px-4 text-sm font-medium text-bg transition-opacity hover:opacity-85"
@@ -51,7 +51,7 @@ export default function Hero({ content }) {
             </a>
           </div>
 
-          <dl className="mt-10 flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs text-muted">
+          <dl className="hero-in mt-10 flex flex-wrap gap-x-8 gap-y-3 font-mono text-xs text-muted" style={{ "--d": 4 }}>
             <div className="flex gap-2">
               <dt className="text-fg/60">role</dt>
               <dd>{profile.role.toLowerCase()}</dd>
@@ -85,7 +85,9 @@ export default function Hero({ content }) {
           </dl>
         </div>
 
-        <Terminal content={content} />
+        <div className="hero-in" style={{ "--d": 3 }}>
+          <Terminal content={content} />
+        </div>
       </div>
     </section>
   );

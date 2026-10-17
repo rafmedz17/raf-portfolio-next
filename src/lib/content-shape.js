@@ -47,5 +47,8 @@ export function cleanContent(input) {
       current: Boolean(e?.current),
       text: str(e?.text),
     })),
+    settings: {
+      intro: obj(c.settings).intro !== false, // on unless switched off
+    },
   };
 }

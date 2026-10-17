@@ -26,6 +26,7 @@ function buildActions(profile, socials) {
       },
     },
     { group: "Fun", label: "View achievements", run: openAchievements },
+    { group: "Fun", label: "Replay intro", run: () => window.dispatchEvent(new Event("intro:replay")) },
     ...socials.map((s) => ({
       group: "Links",
       label: `Open ${s.label}`,

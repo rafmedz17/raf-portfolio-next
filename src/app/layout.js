@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { profile } from "@/data/portfolio";
+import { profile, settings } from "@/data/portfolio";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,8 +24,11 @@ export const viewport = {
   ],
 };
 
-// Applies the saved theme before first paint to avoid a flash.
+// Runs before first paint: applies the saved theme (no flash), and decides
+// whether the cinematic intro plays — home page only, once per session,
+// never for people who prefer reduced motion.
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+const introScript = `try{if(${settings?.intro !== false}&&location.pathname==="/"&&!sessionStorage.getItem("intro-seen")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.intro="play"}catch(e){}`;
 
 export default function RootLayout({ children }) {
   return (
@@ -35,7 +38,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript + introScript }} />
       </head>
       <body>{children}</body>
     </html>

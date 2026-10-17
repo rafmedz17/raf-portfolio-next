@@ -23,6 +23,7 @@ const HELP = [
   ["snake", "take a quick break"],
   ["achievements", "your progress on this site"],
   ["theme", "toggle light / dark"],
+  ["reboot", "replay the intro"],
   ["clear", "clear the screen"],
 ];
 
@@ -167,12 +168,17 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
      \`----'   brewing… done.`}</pre>
     ),
     exit: () => <p>There is no exit. Only <Accent>contact</Accent>.</p>,
+    reboot: () => {
+      setTimeout(() => window.dispatchEvent(new Event("intro:replay")), 400);
+      return <p><Muted>Rebooting… roll the opening credits.</Muted></p>;
+    },
     hello: () => <p>Hey there 👋</p>,
   };
   COMMANDS.hi = COMMANDS.hello;
   COMMANDS.skills = COMMANDS.stack;
   COMMANDS.work = COMMANDS.projects;
   COMMANDS.dir = COMMANDS.ls;
+  COMMANDS.intro = COMMANDS.reboot;
   return COMMANDS;
 }
 
@@ -258,14 +264,20 @@ export default function Terminal({ content }) {
       run(target, { silent: true });
       print({ output: <p><Muted>Type </Muted><Accent>help</Accent><Muted> to look around — or </Muted><Accent>snake</Accent><Muted> if you&apos;re bored.</Muted></p> });
     };
-    if (prefersReducedMotion()) {
-      timers.push(setTimeout(finish, 0));
-    } else {
+    const begin = () => {
+      if (prefersReducedMotion()) {
+        timers.push(setTimeout(finish, 0));
+        return;
+      }
       [...target].forEach((_, i) => {
         timers.push(setTimeout(() => !introCancelled.current && setValue(target.slice(0, i + 1)), 700 + i * 90));
       });
       timers.push(setTimeout(finish, 700 + target.length * 90 + 350));
-    }
+    };
+    // Wait for the cinematic intro (if it's playing) so the typing is seen.
+    const introPlaying = document.documentElement.dataset.intro === "play";
+    if (introPlaying) window.addEventListener("intro:done", begin, { once: true });
+    else begin();
 
     const onPlay = () => {
       introCancelled.current = introDone.current = true;
@@ -274,6 +286,7 @@ export default function Terminal({ content }) {
     window.addEventListener("play-snake", onPlay);
     return () => {
       timers.forEach(clearTimeout);
+      window.removeEventListener("intro:done", begin);
       window.removeEventListener("play-snake", onPlay);
     };
     // Runs once on mount; `run` only touches state setters.
