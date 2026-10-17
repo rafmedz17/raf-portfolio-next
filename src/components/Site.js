@@ -10,6 +10,7 @@ import Extras from "./Extras";
 import Intro from "./Intro";
 import ResumeViewer from "./ResumeViewer";
 import ClickFX from "./ClickFX";
+import Spotlight from "./Spotlight";
 
 // Boot-log lines for the intro, built from the real content.
 function bootLines({ projects, experience, stack }) {
@@ -32,6 +33,7 @@ export default function Site({ content }) {
       {settings?.intro !== false && (
         <Intro name={profile.name || "Hello"} role={profile.role} lines={bootLines(content)} />
       )}
+      <Spotlight />
       <Nav profile={profile} />
       <main>
         <Hero content={content} />

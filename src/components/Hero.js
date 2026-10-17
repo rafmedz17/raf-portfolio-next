@@ -2,7 +2,6 @@ import Terminal from "./Terminal";
 import LocalTime from "./LocalTime";
 import ScrambleText from "./ScrambleText";
 import RotatingWords from "./RotatingWords";
-import Spotlight from "./Spotlight";
 import ResumeButton from "./ResumeButton";
 import ContactButton from "./ContactButton";
 
@@ -12,7 +11,6 @@ export default function Hero({ content }) {
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="dot-grid pointer-events-none absolute inset-0" aria-hidden="true" />
-      <Spotlight />
 
       <div className="relative mx-auto grid max-w-5xl gap-14 px-4 pt-20 pb-24 sm:px-6 md:pt-28 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-12">
         <div>
