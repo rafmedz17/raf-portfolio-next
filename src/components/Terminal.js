@@ -310,11 +310,32 @@ export default function Terminal({ content }) {
       introCancelled.current = introDone.current = true;
       run("snake");
     };
+
+    // `reboot` (or "Replay intro") wipes the terminal — screen and command
+    // history — then types `whoami` again once the intro has finished.
+    const onReboot = () => {
+      timers.forEach(clearTimeout);
+      timers.length = 0;
+      window.removeEventListener("intro:done", begin);
+      introCancelled.current = false;
+      introDone.current = false;
+      setLines([]);
+      setHistory([]);
+      setHistoryIndex(-1);
+      setValue("");
+      setMode("shell");
+      const introWillPlay = document.querySelector(".intro") && !prefersReducedMotion();
+      if (introWillPlay) window.addEventListener("intro:done", begin, { once: true });
+      else begin();
+    };
+
     window.addEventListener("play-snake", onPlay);
+    window.addEventListener("intro:replay", onReboot);
     return () => {
       timers.forEach(clearTimeout);
       window.removeEventListener("intro:done", begin);
       window.removeEventListener("play-snake", onPlay);
+      window.removeEventListener("intro:replay", onReboot);
     };
     // Runs once on mount; `run` only touches state setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
