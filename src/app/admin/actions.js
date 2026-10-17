@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminMode, checkPassword, endSession, isAuthed, startSession } from "@/lib/admin-auth";
-import { cleanContent, storageMode, writeContent } from "@/lib/content-store";
+import { cleanContent, storageMode, writeContent, writeUpload } from "@/lib/content-store";
 import { deleteMessage, listMessages, setMessageRead } from "@/lib/inbox-store";
 
 export async function login(_prevState, formData) {
@@ -50,6 +50,36 @@ export async function removeMessage(id) {
   try {
     await deleteMessage(String(id));
     return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Images ────────────────────────────────────────────────────
+
+const MAX_UPLOAD = 1.5 * 1024 * 1024;
+
+// Detects the real image type from the file's first bytes.
+function imageType(bytes) {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "jpg";
+  if (bytes.subarray(0, 4).toString("hex") === "89504e47") return "png";
+  if (bytes.subarray(0, 4).toString() === "RIFF" && bytes.subarray(8, 12).toString() === "WEBP") return "webp";
+  return null;
+}
+
+// Takes a data URL (the admin resizes images in the browser first).
+export async function uploadImage(dataUrl) {
+  if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
+  const match = /^data:image\/[a-z+]+;base64,(.+)$/.exec(String(dataUrl ?? ""));
+  if (!match) return { ok: false, error: "That file isn't an image." };
+
+  const bytes = Buffer.from(match[1], "base64");
+  if (bytes.length > MAX_UPLOAD) return { ok: false, error: "That image is too large (1.5 MB max)." };
+  const ext = imageType(bytes);
+  if (!ext) return { ok: false, error: "Please use a JPG, PNG or WebP image." };
+
+  try {
+    return { ok: true, url: await writeUpload(bytes, ext), mode: storageMode() };
   } catch (err) {
     return { ok: false, error: err.message };
   }

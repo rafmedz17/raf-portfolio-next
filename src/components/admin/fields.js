@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
+import { uploadImage } from "@/app/admin/actions";
 import Icon from "./Icon";
 import { getIn } from "./schema";
 
@@ -112,6 +113,147 @@ function TimezoneInput({ id, field, value, onChange, error }) {
   );
 }
 
+// Shrinks a photo in the browser (max 1200px, JPEG) so uploads stay small.
+function resizeImage(file, maxSize = 1200) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.86));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Couldn't read that image."));
+    };
+    img.src = url;
+  });
+}
+
+function ImageField({ id, field, value, onChange, error }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [localPreview, setLocalPreview] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef(null);
+
+  const upload = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "Please choose an image file (JPG, PNG or WebP)." });
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      const dataUrl = await resizeImage(file);
+      const result = await uploadImage(dataUrl);
+      if (!result.ok) throw new Error(result.error);
+      setLocalPreview(dataUrl);
+      onChange(result.url);
+      setMessage({
+        type: "ok",
+        text:
+          result.mode === "github"
+            ? "Uploaded to GitHub. Save, and it shows on the live site after the rebuild (1–2 min)."
+            : "Uploaded! Hit Save to keep it.",
+      });
+    } catch (err) {
+      setMessage({ type: "error", text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const shown = localPreview && value?.startsWith("/uploads/") ? localPreview : value;
+
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        upload(e.dataTransfer.files?.[0]);
+      }}
+      className={`flex gap-4 rounded-lg border p-3 transition ${dragging ? "border-accent bg-accent-soft" : error ? "border-red-500/70" : "border-line"}`}
+    >
+      <div className="relative aspect-[4/5] w-24 shrink-0 overflow-hidden rounded-md border border-line bg-surface">
+        {shown ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={shown} alt="" className="size-full object-cover object-top" />
+        ) : (
+          <span className="grid size-full place-items-center text-muted">
+            <Icon name="user" className="size-6" />
+          </span>
+        )}
+        {busy && (
+          <span className="absolute inset-0 grid place-items-center bg-bg/70">
+            <span className="size-5 animate-spin rounded-full border-2 border-muted/30 border-t-accent" />
+          </span>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="flex h-8 items-center gap-1.5 rounded-md bg-fg px-3 text-xs font-medium text-bg transition hover:opacity-85 disabled:opacity-50"
+          >
+            <Icon name="upload" className="size-3.5" />
+            {value ? "Upload new photo" : "Upload photo"}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => {
+                onChange("");
+                setLocalPreview(null);
+                setMessage(null);
+              }}
+              className="flex h-8 items-center gap-1.5 rounded-md border border-line px-3 text-xs text-muted transition hover:text-red-500"
+            >
+              <Icon name="trash" className="size-3.5" /> Remove
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-muted">or drag an image here. It&apos;s resized automatically.</p>
+        {message && (
+          <p className={`text-xs ${message.type === "error" ? "text-red-500" : "text-accent"}`}>{message.text}</p>
+        )}
+        <input
+          id={id}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          className="w-full truncate bg-transparent font-mono text-[11px] text-muted outline-none focus:text-fg"
+          aria-label="Image path or URL"
+        />
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            upload(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function Field({ field, value, onChange, error }) {
   const id = useId();
 
@@ -131,6 +273,8 @@ export function Field({ field, value, onChange, error }) {
     );
   } else if (field.type === "tags") {
     control = <TagInput id={id} field={field} value={value} onChange={onChange} error={error} />;
+  } else if (field.type === "image") {
+    control = <ImageField id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else if (field.type === "timezone") {
     control = <TimezoneInput id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else {

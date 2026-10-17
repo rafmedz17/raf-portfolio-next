@@ -26,8 +26,8 @@ export function storageLabel() {
 
 const githubBranch = () => process.env.GITHUB_BRANCH || "master";
 
-async function github(init = {}) {
-  const url = `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${FILE}`;
+async function github(init = {}, filePath = FILE) {
+  const url = `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${filePath}`;
   const res = await fetch(init.method ? url : `${url}?ref=${githubBranch()}`, {
     ...init,
     cache: "no-store",
@@ -79,4 +79,33 @@ export async function writeContent(content) {
     return;
   }
   throw new Error("Saving isn't set up on this server. See ADMIN.md to connect GitHub.");
+}
+
+// Saves an uploaded image under public/uploads and returns its public URL.
+// `bytes` is a Buffer; `ext` is "jpg" | "png" | "webp".
+export async function writeUpload(bytes, ext) {
+  const name = `photo-${Date.now()}.${ext}`;
+  const repoPath = `public/uploads/${name}`;
+  const mode = storageMode();
+
+  if (mode === "github") {
+    await github(
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Upload ${name} from admin`,
+          content: bytes.toString("base64"),
+          branch: githubBranch(),
+        }),
+      },
+      repoPath
+    );
+  } else if (mode === "file") {
+    const dir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, name), bytes);
+  } else {
+    throw new Error("Uploading isn't set up on this server. See ADMIN.md to connect GitHub.");
+  }
+  return `/uploads/${name}`;
 }

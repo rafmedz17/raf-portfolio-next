@@ -19,6 +19,8 @@ export function cleanContent(input) {
       headlinePrefix: str(p.headlinePrefix),
       headlineWords: strs(p.headlineWords),
       intro: str(p.intro),
+      photo: str(p.photo),
+      photoAlt: str(p.photoAlt),
       email: str(p.email),
       location: str(p.location),
       timeZone: str(p.timeZone),

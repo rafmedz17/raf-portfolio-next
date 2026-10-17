@@ -24,6 +24,14 @@ export const SECTIONS = [
       },
       {
         type: "fields",
+        title: "Photo",
+        fields: [
+          { path: "profile.photo", label: "Your photo", type: "image", placeholder: "/images/me.jpg", help: "Shown in the About section. A portrait (taller than wide) works best." },
+          { path: "profile.photoAlt", label: "Photo description", placeholder: "Raf smiling in a graduation gown", help: "Read aloud by screen readers for people who can't see the image." },
+        ],
+      },
+      {
+        type: "fields",
         title: "Headline",
         fields: [
           { path: "profile.headlinePrefix", label: "Headline start", placeholder: "I build software that's", help: "The part that stays the same." },

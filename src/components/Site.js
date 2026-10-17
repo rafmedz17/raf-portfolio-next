@@ -33,7 +33,7 @@ export default function Site({ content }) {
       <Nav profile={profile} />
       <main>
         <Hero content={content} />
-        <About about={about} stack={stack} projects={projects} />
+        <About profile={profile} about={about} stack={stack} projects={projects} />
         <Work projects={projects} />
         <Experience experience={experience} />
         <Contact profile={profile} socials={socials} />
