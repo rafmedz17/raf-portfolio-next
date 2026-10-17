@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { resumeFileName } from "@/lib/theme";
+import * as sound from "@/lib/sound";
 
 function DownloadIcon({ className = "size-4" }) {
   return (
@@ -23,18 +24,33 @@ function ExternalIcon({ className = "size-4" }) {
 // Desktop: the PDF is embedded. Phones (which often can't embed PDFs):
 // a card with Open / Download buttons instead.
 export default function ResumeViewer({ url, name }) {
-  const [open, setOpen] = useState(false);
+  const [state, setState] = useState("closed"); // closed | open | closing
+  const [saved, setSaved] = useState(false);
+  const timers = useRef([]);
   const fileName = resumeFileName(name);
 
+  const later = (ms, fn) => timers.current.push(setTimeout(fn, ms));
+
   useEffect(() => {
-    const onOpen = () => setOpen(true);
+    const onOpen = () => {
+      timers.current.forEach(clearTimeout);
+      sound.open();
+      setSaved(false);
+      setState("open");
+    };
     window.addEventListener("open-resume", onOpen);
     return () => window.removeEventListener("open-resume", onOpen);
   }, []);
 
+  const close = useCallback(() => {
+    sound.close();
+    setState("closing");
+    timers.current.push(setTimeout(() => setState("closed"), 250));
+  }, []);
+
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    if (state !== "open") return;
+    const onKey = (e) => e.key === "Escape" && close();
     const root = document.documentElement;
     const previous = root.style.overflow;
     root.style.overflow = "hidden";
@@ -43,9 +59,10 @@ export default function ResumeViewer({ url, name }) {
       root.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [state, close]);
 
-  if (!open) return null;
+  if (state === "closed") return null;
+  const closing = state === "closing";
 
   const actions = (
     <>
@@ -53,7 +70,7 @@ export default function ResumeViewer({ url, name }) {
         href={url}
         target="_blank"
         rel="noreferrer"
-        className="flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-sm text-muted transition hover:bg-surface hover:text-fg"
+        className="flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-sm text-muted transition hover:bg-surface hover:text-fg active:scale-95"
       >
         <ExternalIcon className="size-3.5" />
         <span>Open</span>
@@ -61,23 +78,33 @@ export default function ResumeViewer({ url, name }) {
       <a
         href={url}
         download={fileName}
-        className="flex h-9 items-center gap-1.5 rounded-md bg-fg px-3 text-sm font-medium text-bg transition hover:opacity-85"
+        onClick={() => {
+          setSaved(true);
+          later(2200, () => setSaved(false));
+        }}
+        className={`flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition active:scale-95 ${saved ? "bg-accent text-bg" : "bg-fg text-bg hover:opacity-85"}`}
       >
-        <DownloadIcon className="size-3.5" />
-        <span>Download</span>
+        {saved ? (
+          <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m5 12 5 5 9-10" />
+          </svg>
+        ) : (
+          <DownloadIcon className="size-3.5" />
+        )}
+        <span>{saved ? "Saved" : "Download"}</span>
       </a>
     </>
   );
 
   return (
     <div
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-6"
-      onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}
+      className={`fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-6 ${closing ? "backdrop-out" : "backdrop-in"}`}
+      onMouseDown={(e) => !closing && e.target === e.currentTarget && close()}
       role="dialog"
       aria-modal="true"
       aria-label="Résumé"
     >
-      <div className="toast-in flex h-full max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-line bg-bg shadow-2xl sm:h-[92vh]">
+      <div className={`flex h-full max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-line bg-bg shadow-2xl sm:h-[92vh] ${closing ? "sheet-out" : "sheet-in"}`}>
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-line px-4 py-3">
           <span className="grid h-9 w-7 shrink-0 place-items-center rounded border border-red-500/30 bg-red-500/10 font-mono text-[8px] font-bold text-red-500">
@@ -90,7 +117,8 @@ export default function ResumeViewer({ url, name }) {
           <div className="hidden items-center gap-2 sm:flex">{actions}</div>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={() => !closing && close()}
+            data-sfx="none"
             autoFocus
             aria-label="Close résumé"
             className="grid size-9 place-items-center rounded-md text-muted transition hover:bg-surface hover:text-fg"
@@ -103,6 +131,7 @@ export default function ResumeViewer({ url, name }) {
 
         {/* Body */}
         <div className="relative min-h-0 flex-1 bg-surface">
+          <span className="scan-line z-10" aria-hidden="true" />
           <object data={`${url}#view=FitH&toolbar=1`} type="application/pdf" className="hidden size-full sm:block" aria-label={`${name} résumé`}>
             <Fallback actions={actions} />
           </object>

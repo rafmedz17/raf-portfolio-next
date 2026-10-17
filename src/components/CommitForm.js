@@ -4,6 +4,7 @@ import { useState } from "react";
 import { sendMessage } from "@/app/contact-actions";
 import { unlock } from "@/lib/achievements";
 import { prefersReducedMotion } from "@/lib/theme";
+import * as sound from "@/lib/sound";
 
 const PUSH_LOG = [
   "Enumerating objects: 3, done.",
@@ -38,6 +39,7 @@ export default function CommitForm({ email, name }) {
   const fail = (message) => {
     setShake(true);
     setLog((l) => [...l, `error: ${message}`]);
+    sound.error();
     setTimeout(() => setShake(false), 400);
   };
 
@@ -54,6 +56,7 @@ export default function CommitForm({ email, name }) {
     const request = sendMessage(form);
     for (const line of PUSH_LOG) {
       setLog((l) => [...l, line]);
+      sound.tick();
       await wait(delay);
     }
     const result = await request;
@@ -62,6 +65,7 @@ export default function CommitForm({ email, name }) {
       setLog((l) => [...l, `To ${name.toLowerCase() || "me"}:inbox`, " * [new branch]      your-idea -> inbox", "✓ Delivered. I'll get back to you soon!"]);
       setForm({ name: "", email: "", message: "", website: "" });
       unlock("contact");
+      sound.success();
     } else {
       fail(`failed to push — ${result.error}`);
       setFallback(Boolean(result.fallback));
@@ -74,6 +78,7 @@ export default function CommitForm({ email, name }) {
   return (
     <form
       onSubmit={push}
+      onKeyDown={sound.keySound}
       className={`overflow-hidden rounded-xl border border-line bg-surface font-mono text-[13px] ${shake ? "shake" : ""}`}
     >
       <div className="flex items-center justify-between border-b border-line px-4 py-2.5 text-xs text-muted">

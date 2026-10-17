@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { cssVar } from "@/lib/theme";
 import { unlock } from "@/lib/achievements";
+import * as sound from "@/lib/sound";
 
 const CELL = 14;
 const DIRS = {
@@ -98,6 +99,7 @@ export default function SnakeGame({ onExit }) {
       const hitSelf = state.snake.some((p) => p.x === next.x && p.y === next.y);
       if (hitWall || hitSelf) {
         state.over = true;
+        sound.gameOver();
         best = Math.max(best, state.score);
         draw();
         return;
@@ -105,6 +107,7 @@ export default function SnakeGame({ onExit }) {
       state.snake.unshift(next);
       if (next.x === state.food.x && next.y === state.food.y) {
         state.score++;
+        sound.blip(660 + state.score * 40);
         if (state.score >= 5) unlock("snake");
         state.food = randomFood(state.snake);
         state.speed = Math.max(55, state.speed - 4);

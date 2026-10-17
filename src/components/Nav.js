@@ -1,5 +1,6 @@
 import { navLinks } from "@/data/nav";
 import ThemeToggle from "./ThemeToggle";
+import SoundToggle from "./SoundToggle";
 import CommandButton from "./CommandButton";
 import ActivePath from "./ActivePath";
 import ResumeButton from "./ResumeButton";
@@ -28,6 +29,7 @@ export default function Nav({ profile }) {
             )}
           </ul>
           <CommandButton />
+          <SoundToggle />
           <ThemeToggle />
         </div>
       </nav>

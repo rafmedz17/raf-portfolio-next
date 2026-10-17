@@ -62,8 +62,7 @@
         "TypeScript",
         "JavaScript",
         "Python",
-        "SQL",
-        "Go"
+        "SQL"
       ]
     },
     {
@@ -71,8 +70,7 @@
       "items": [
         "React",
         "Next.js",
-        "Tailwind CSS",
-        "React Native"
+        "Tailwind CSS"
       ]
     },
     {
@@ -81,18 +79,16 @@
         "Node.js",
         "Express",
         "FastAPI",
-        "PostgreSQL",
-        "Redis"
+        "PostgreSQL"
       ]
     },
     {
       "group": "tooling",
       "items": [
         "Git",
-        "Docker",
         "AWS",
         "Vercel",
-        "GitHub Actions"
+        "Github"
       ]
     }
   ],

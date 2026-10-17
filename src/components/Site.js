@@ -9,6 +9,7 @@ import CommandMenu from "./CommandMenu";
 import Extras from "./Extras";
 import Intro from "./Intro";
 import ResumeViewer from "./ResumeViewer";
+import ClickFX from "./ClickFX";
 
 // Boot-log lines for the intro, built from the real content.
 function bootLines({ projects, experience, stack }) {
@@ -42,6 +43,7 @@ export default function Site({ content }) {
       <Footer profile={profile} />
       <CommandMenu profile={profile} socials={socials} />
       <Extras profile={profile} />
+      <ClickFX />
       {profile.resume && profile.resume !== "#" && (
         <ResumeViewer url={profile.resume} name={profile.fullName || profile.name} />
       )}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { openResume, prefersReducedMotion, toggleTheme } from "@/lib/theme";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import SnakeGame from "./SnakeGame";
+import * as sound from "@/lib/sound";
 
 const Muted = ({ children }) => <span className="text-muted">{children}</span>;
 const Accent = ({ children }) => <span className="text-accent">{children}</span>;
@@ -157,6 +158,7 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
     "cat .secrets": () => <p>I actually enjoy writing documentation. Don&apos;t tell anyone. <Muted>(also: try the Konami code)</Muted></p>,
     "sudo hire raf": () => {
       unlock("sudo");
+      setTimeout(sound.success, 250);
       return (
         <div>
           <p><Muted>[sudo] password for recruiter: ********</Muted></p>
@@ -244,7 +246,8 @@ export default function Terminal({ content }) {
       if (handler) output = handler();
       else if (cmd.startsWith("echo ")) output = <p>{cmd.slice(5)}</p>;
       else if (cmd.startsWith("sudo ")) output = commands.sudo();
-      else
+      else {
+        sound.error();
         output = (
           <p>
             command not found: {cmd}. <Muted>Type </Muted>
@@ -252,6 +255,7 @@ export default function Terminal({ content }) {
             <Muted>.</Muted>
           </p>
         );
+      }
     }
     print({ cmd: raw }, ...(output ? [{ output }] : []));
   };
@@ -277,6 +281,7 @@ export default function Terminal({ content }) {
       if (introCancelled.current || introDone.current) return;
       introDone.current = true;
       setValue("");
+      sound.key("enter");
       run(target, { silent: true });
       print({ output: <p><Muted>Type </Muted><Accent>help</Accent><Muted> to look around — or </Muted><Accent>snake</Accent><Muted> if you&apos;re bored.</Muted></p> });
     };
@@ -286,7 +291,13 @@ export default function Terminal({ content }) {
         return;
       }
       [...target].forEach((_, i) => {
-        timers.push(setTimeout(() => !introCancelled.current && setValue(target.slice(0, i + 1)), 700 + i * 90));
+        timers.push(
+          setTimeout(() => {
+            if (introCancelled.current) return;
+            setValue(target.slice(0, i + 1));
+            sound.key();
+          }, 700 + i * 90)
+        );
       });
       timers.push(setTimeout(finish, 700 + target.length * 90 + 350));
     };
@@ -322,6 +333,7 @@ export default function Terminal({ content }) {
   };
 
   const onKeyDown = (e) => {
+    sound.keySound(e);
     if (e.key === "Enter") {
       e.preventDefault();
       run(value);

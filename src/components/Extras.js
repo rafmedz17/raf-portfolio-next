@@ -1,5 +1,6 @@
 "use client";
 
+import * as sound from "@/lib/sound";
 import { useCallback, useEffect, useState } from "react";
 import { ACHIEVEMENTS, getUnlocked, unlock } from "@/lib/achievements";
 import { prefersReducedMotion } from "@/lib/theme";
@@ -29,6 +30,7 @@ export default function Extras({ profile }) {
     // Listeners are registered once; the greeting only needs the first profile.
 
     const onAchievement = (e) => {
+      sound.achievement();
       const achievement = ACHIEVEMENTS.find((a) => a.id === e.detail);
       if (!achievement) return;
       const id = Date.now() + Math.random();
