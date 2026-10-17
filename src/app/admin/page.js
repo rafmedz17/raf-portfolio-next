@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { adminMode, isAuthed } from "@/lib/admin-auth";
 import { readContent, storageLabel, storageMode } from "@/lib/content-store";
+import { listMessages } from "@/lib/inbox-store";
 import AdminEditor from "@/components/admin/AdminEditor";
 import AdminNotice from "@/components/admin/AdminNotice";
 
@@ -29,11 +30,16 @@ export default async function AdminPage() {
     );
   }
 
+  const unread = await listMessages()
+    .then((messages) => messages.filter((m) => !m.read).length)
+    .catch(() => 0);
+
   return (
     <AdminEditor
       initialContent={content}
       storage={{ mode: storageMode(), label: storageLabel() }}
       passwordProtected={adminMode() === "password"}
+      unread={unread}
     />
   );
 }

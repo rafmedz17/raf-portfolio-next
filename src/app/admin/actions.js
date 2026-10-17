@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminMode, checkPassword, endSession, isAuthed, startSession } from "@/lib/admin-auth";
 import { cleanContent, storageMode, writeContent } from "@/lib/content-store";
+import { deleteMessage, listMessages, setMessageRead } from "@/lib/inbox-store";
 
 export async function login(_prevState, formData) {
   if (adminMode() === "disabled") {
@@ -22,6 +23,39 @@ export async function logout() {
   await endSession();
   redirect("/admin/login");
 }
+
+// ── Inbox ─────────────────────────────────────────────────────
+
+export async function getMessages() {
+  if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
+  try {
+    return { ok: true, messages: await listMessages() };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function markMessageRead(id, read) {
+  if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
+  try {
+    await setMessageRead(String(id), Boolean(read));
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function removeMessage(id) {
+  if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
+  try {
+    await deleteMessage(String(id));
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Content ───────────────────────────────────────────────────
 
 export async function saveContent(content) {
   if (!(await isAuthed())) {

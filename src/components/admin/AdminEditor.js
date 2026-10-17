@@ -7,6 +7,7 @@ import { SECTIONS, sectionForPath, setIn, validate } from "./schema";
 import { FieldsBlock, ListBlock, StringsBlock } from "./fields";
 import PreviewPane from "./PreviewPane";
 import Icon from "./Icon";
+import AdminTabs from "./AdminTabs";
 
 const DRAFT_KEY = "admin-draft";
 const WELCOME_KEY = "admin-welcome-dismissed";
@@ -174,7 +175,7 @@ function MoreMenu({ onExport, onImport, onDiscard, canDiscard, passwordProtected
 
 // ── Editor ────────────────────────────────────────────────────
 
-export default function AdminEditor({ initialContent, storage, passwordProtected }) {
+export default function AdminEditor({ initialContent, storage, passwordProtected, unread = 0 }) {
   const [history, dispatch] = useReducer(historyReducer, {
     past: [],
     present: initialContent,
@@ -330,10 +331,11 @@ export default function AdminEditor({ initialContent, storage, passwordProtected
     <div className="flex h-dvh flex-col bg-surface/40">
       {/* ── Top bar ── */}
       <header className="flex h-14 shrink-0 items-center gap-2 border-b border-line bg-bg px-3 sm:gap-3 sm:px-4">
-        <a href="/admin" className="font-mono text-sm font-medium">
+        <a href="/admin" className="hidden font-mono text-sm font-medium sm:block">
           <span className="text-accent">~/</span>admin
         </a>
-        <span className="hidden sm:block">
+        <AdminTabs unread={unread} unsaved={dirty} />
+        <span className="hidden lg:block">
           <StatusChip saving={saving} dirty={dirty} />
         </span>
 

@@ -71,6 +71,48 @@ Restart `npm run dev`. The editor will now ask for the password and save to GitH
 
 ---
 
+## 3. Inbox (messages from your contact form)
+
+When visitors fill in the `git commit` form on your site, their message lands in **`/admin/inbox`**. Switch between **Content** and **Inbox** with the tabs at the top of the admin. A green badge shows how many messages are unread.
+
+In the inbox you can:
+
+- search messages and filter to unread ones
+- open a message (it's marked as read automatically)
+- **Reply by email**: opens your mail app with their message quoted
+- mark a message unread again, or delete it
+
+New messages show up on their own (the inbox checks every 30 seconds), or click **Refresh**.
+
+**Spam protection:** a hidden field that only bots fill in, plus a limit of 5 messages per hour per visitor. Visitor IP addresses are hashed, never stored.
+
+### On your computer
+
+Nothing to set up. Messages are saved to `.data/inbox.json`, which is git-ignored, so they never end up in your repo.
+
+### On your live site
+
+The live site needs a small database to store messages. Upstash Redis has a free tier that's plenty for a portfolio.
+
+**On Vercel (easiest):**
+
+1. Open your project → **Storage** → **Create Database** → choose **Upstash** (Redis / KV).
+2. Pick the free plan and **connect it to this project**.
+3. Vercel adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` for you. Redeploy, and you're done.
+
+**Anywhere else:** create a free database at [upstash.com](https://upstash.com), open its **REST API** section, and add these two environment variables on your host:
+
+| Name | Value |
+| --- | --- |
+| `UPSTASH_REDIS_REST_URL` | The REST URL, e.g. `https://xxx.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | The REST token |
+
+Until this is set up online, the contact form tells visitors to email you directly instead.
+
+> Tip: add these variables to `.env.local` too if you want your computer to use the same inbox as the live site.
+
+---
+
 ## Troubleshooting
 
 - **"Admin is turned off"**: `ADMIN_PASSWORD` isn't set on your host.
@@ -78,3 +120,5 @@ Restart `npm run dev`. The editor will now ask for the password and save to GitH
 - **"GitHub responded 404"**: check `GITHUB_REPO` and `GITHUB_BRANCH`, and that the token has access to that repo.
 - **"GitHub responded 401/403"**: the token is wrong, expired, or lacks *Contents: Read and write*.
 - **Preview stuck on "Loading preview…"**: click the reload icon above the preview.
+- **"The inbox isn't set up on this server"**: add the Upstash variables from section 3, then redeploy.
+- **Messages sent from the admin preview**: the preview runs your real site, so testing the contact form there sends a real message to your inbox. Just delete it.
