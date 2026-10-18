@@ -67,8 +67,11 @@ function imageType(bytes) {
   return null;
 }
 
+const IMAGE_KINDS = ["photo", "project"];
+
 // Takes a data URL (the admin resizes images in the browser first).
-export async function uploadImage(dataUrl) {
+// `kind` names the file: "photo" (profile) or "project" (screenshot).
+export async function uploadImage(dataUrl, kind = "photo") {
   if (!(await isAuthed())) return { ok: false, error: "Your session expired. Log in again." };
   const match = /^data:image\/[a-z+]+;base64,(.+)$/.exec(String(dataUrl ?? ""));
   if (!match) return { ok: false, error: "That file isn't an image." };
@@ -79,7 +82,8 @@ export async function uploadImage(dataUrl) {
   if (!ext) return { ok: false, error: "Please use a JPG, PNG or WebP image." };
 
   try {
-    return { ok: true, url: await writeUpload(bytes, ext), mode: storageMode() };
+    const prefix = IMAGE_KINDS.includes(kind) ? kind : "photo";
+    return { ok: true, url: await writeUpload(bytes, ext, prefix), mode: storageMode() };
   } catch (err) {
     return { ok: false, error: err.message };
   }

@@ -120,7 +120,7 @@ function buildCommands({ profile, about, stack, projects, experience, socials })
         ))}
         <p className="mt-1">
           <Muted>Details in the </Muted>
-          <Link href="#work">work section</Link>
+          <Link href="#projects">projects section</Link>
           <Muted>.</Muted>
         </p>
       </div>

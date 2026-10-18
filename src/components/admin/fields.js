@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { uploadDocument, uploadImage } from "@/app/admin/actions";
 import Icon from "./Icon";
 import { getIn } from "./schema";
@@ -113,19 +113,22 @@ function TimezoneInput({ id, field, value, onChange, error }) {
   );
 }
 
-// Shrinks a photo in the browser (max 1200px, JPEG) so uploads stay small.
-function resizeImage(file, maxSize = 1200) {
+// Shrinks an image in the browser so uploads stay small. Photos default to
+// max 1200px JPEG; screenshots ask for WebP (sharper text), falling back to
+// JPEG in browsers that can't encode it.
+function resizeImage(file, { maxWidth = 1200, maxHeight = 1200, type = "image/jpeg" } = {}) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const scale = Math.min(1, maxWidth / img.width, maxHeight / img.height);
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
       canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL("image/jpeg", 0.86));
+      const encoded = canvas.toDataURL(type, 0.86);
+      resolve(encoded.startsWith(`data:${type}`) ? encoded : canvas.toDataURL("image/jpeg", 0.86));
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
@@ -250,6 +253,174 @@ function ImageField({ id, field, value, onChange, error }) {
           }}
         />
       </div>
+    </div>
+  );
+}
+
+// Returns the first image in a paste event, if any.
+function pastedImage(e) {
+  return [...(e.clipboardData?.files ?? [])].find((f) => f.type.startsWith("image/")) ?? null;
+}
+
+// A wide project screenshot. Paste it (Ctrl+V anywhere while the project is
+// open), drag it in, or pick a file.
+function ScreenshotField({ id, field, value, onChange, error }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [localPreview, setLocalPreview] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef(null);
+
+  const upload = async (file) => {
+    if (!file || busy) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "That isn't an image. Copy a screenshot and paste it here." });
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      const dataUrl = await resizeImage(file, { maxWidth: 1920, maxHeight: 4000, type: "image/webp" });
+      const result = await uploadImage(dataUrl, "project");
+      if (!result.ok) throw new Error(result.error);
+      setLocalPreview(dataUrl);
+      onChange(result.url);
+      setMessage({
+        type: "ok",
+        text:
+          result.mode === "github"
+            ? "Uploaded to GitHub. Save, and it shows on the live site after the rebuild (1–2 min)."
+            : "Screenshot added! Hit Save to keep it.",
+      });
+    } catch (err) {
+      setMessage({ type: "error", text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Ctrl+V anywhere on the page while this project is open. Text pastes
+  // are left alone; only clipboard images are taken.
+  const uploadRef = useRef(upload);
+  useEffect(() => {
+    uploadRef.current = upload;
+  });
+  useEffect(() => {
+    const onPaste = (e) => {
+      const file = pastedImage(e);
+      if (!file) return;
+      e.preventDefault();
+      uploadRef.current(file);
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, []);
+
+  const pasteFromButton = async () => {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const type = item.types.find((t) => t.startsWith("image/"));
+        if (type) return upload(await item.getType(type));
+      }
+      setMessage({ type: "error", text: "No image on your clipboard. Take a screenshot first, then paste." });
+    } catch {
+      setMessage({ type: "error", text: "Your browser blocked clipboard access. Press Ctrl+V (⌘V on Mac) instead." });
+    }
+  };
+
+  const shown = localPreview && value?.startsWith("/uploads/") ? localPreview : value;
+
+  return (
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        upload(e.dataTransfer.files?.[0]);
+      }}
+      className={`rounded-lg border p-3 transition ${dragging ? "border-accent bg-accent-soft" : error ? "border-red-500/70" : "border-line"}`}
+    >
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-md border border-line bg-surface">
+        {shown ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={shown} alt="" className="size-full object-cover object-top" />
+        ) : (
+          <span className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center text-muted">
+            <Icon name="image" className="size-7" />
+            <span className="text-sm">
+              Press <kbd className="rounded border border-line bg-bg px-1.5 py-0.5 font-mono text-[11px]">Ctrl</kbd> +{" "}
+              <kbd className="rounded border border-line bg-bg px-1.5 py-0.5 font-mono text-[11px]">V</kbd> to paste a screenshot
+            </span>
+            <span className="text-xs">or drag an image here</span>
+          </span>
+        )}
+        {busy && (
+          <span className="absolute inset-0 grid place-items-center bg-bg/70">
+            <span className="size-5 animate-spin rounded-full border-2 border-muted/30 border-t-accent" />
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={pasteFromButton}
+          disabled={busy}
+          className="flex h-8 items-center gap-1.5 rounded-md bg-fg px-3 text-xs font-medium text-bg transition hover:opacity-85 disabled:opacity-50"
+        >
+          <Icon name="clipboard" className="size-3.5" />
+          {value ? "Paste new screenshot" : "Paste screenshot"}
+        </button>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="flex h-8 items-center gap-1.5 rounded-md border border-line px-3 text-xs text-muted transition hover:text-fg disabled:opacity-50"
+        >
+          <Icon name="upload" className="size-3.5" /> Upload file
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setLocalPreview(null);
+              setMessage(null);
+            }}
+            className="flex h-8 items-center gap-1.5 rounded-md border border-line px-3 text-xs text-muted transition hover:text-red-500"
+          >
+            <Icon name="trash" className="size-3.5" /> Remove
+          </button>
+        )}
+      </div>
+
+      {message && (
+        <p className={`mt-2 text-xs ${message.type === "error" ? "text-red-500" : "text-accent"}`}>{message.text}</p>
+      )}
+
+      <input
+        id={id}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={field.placeholder}
+        className="mt-2 w-full truncate bg-transparent font-mono text-[11px] text-muted outline-none focus:text-fg"
+        aria-label="Screenshot path or URL"
+      />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          upload(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }
@@ -412,6 +583,8 @@ export function Field({ field, value, onChange, error }) {
     control = <PdfField id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else if (field.type === "image") {
     control = <ImageField id={id} field={field} value={value} onChange={onChange} error={error} />;
+  } else if (field.type === "screenshot") {
+    control = <ScreenshotField id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else if (field.type === "timezone") {
     control = <TimezoneInput id={id} field={field} value={value} onChange={onChange} error={error} />;
   } else {

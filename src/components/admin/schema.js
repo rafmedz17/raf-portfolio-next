@@ -1,7 +1,8 @@
 // Describes the admin forms. Each section is a page in the sidebar; each block
 // is a group of fields, a list of items, or a list of plain text.
 //
-// Field types: text (default), textarea, email, url, toggle, tags, timezone.
+// Field types: text (default), textarea, email, url, toggle, tags, timezone,
+// image (portrait photo), screenshot (wide, pasteable), pdf.
 // `path` points into the content object, e.g. "profile.name".
 
 export const SECTIONS = [
@@ -141,7 +142,7 @@ export const SECTIONS = [
     id: "projects",
     label: "Projects",
     icon: "folder",
-    anchor: "work",
+    anchor: "projects",
     description: "Your best work. The tech tags double as filter buttons on the site.",
     blocks: [
       {
@@ -149,13 +150,14 @@ export const SECTIONS = [
         title: "Projects",
         path: "projects",
         itemName: "project",
-        newItem: { title: "", year: String(new Date().getFullYear()), description: "", stack: [], repo: "", live: "" },
+        newItem: { title: "", year: String(new Date().getFullYear()), description: "", stack: [], repo: "", live: "", image: "" },
         itemTitle: (p) => p.title || "Untitled project",
         itemSubtitle: (p) => [p.year, p.stack.join(", ")].filter(Boolean).join(" · "),
         fields: [
           { key: "title", label: "Project name", required: true, placeholder: "My awesome app" },
           { key: "year", label: "Year", placeholder: "2026" },
           { key: "description", label: "Description", type: "textarea", rows: 3, placeholder: "What it does and why it's interesting." },
+          { key: "image", label: "Screenshot", type: "screenshot", placeholder: "/uploads/project-….webp", help: "Optional. Paste a screenshot with Ctrl+V while this project is open, or drag or upload one. Wide shots (16:10) look best." },
           { key: "stack", label: "Tech used", type: "tags", placeholder: "Type a technology and press Enter" },
           { key: "repo", label: "Source code link", type: "url", placeholder: "https://github.com/…", help: "Optional." },
           { key: "live", label: "Live site link", type: "url", placeholder: "https://…", help: "Optional." },

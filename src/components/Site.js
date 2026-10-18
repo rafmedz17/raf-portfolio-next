@@ -1,7 +1,7 @@
 import Nav from "./Nav";
 import Hero from "./Hero";
 import About from "./About";
-import Work from "./Work";
+import Projects from "./Projects";
 import Experience from "./Experience";
 import Contact from "./Contact";
 import Footer from "./Footer";
@@ -39,7 +39,7 @@ export default function Site({ content }) {
       <main>
         <Hero content={content} />
         <About profile={profile} about={about} stack={stack} projects={projects} />
-        <Work projects={projects} />
+        <Projects projects={projects} />
         <Experience experience={experience} />
         <Contact profile={profile} socials={socials} />
       </main>

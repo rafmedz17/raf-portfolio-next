@@ -41,6 +41,7 @@ export function cleanContent(input) {
       stack: strs(p?.stack),
       repo: str(p?.repo),
       live: str(p?.live),
+      image: str(p?.image),
     })),
     experience: arr(c.experience).map((e) => ({
       role: str(e?.role),

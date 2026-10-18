@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { unlock } from "@/lib/achievements";
 import Reveal from "./Reveal";
+import ProjectShot from "./ProjectShot";
 
 function ArrowIcon() {
   return (
@@ -122,9 +123,12 @@ export default function ProjectList({ projects }) {
                   </ul>
                 </div>
 
-                <div className="relative flex gap-4 md:flex-col md:items-end md:gap-2 md:pt-1.5">
-                  {project.repo && <ProjectLink href={project.repo} label="source" />}
-                  {project.live && <ProjectLink href={project.live} label="live" />}
+                <div className="relative flex flex-col gap-4 md:items-end md:pt-1.5">
+                  <div className="flex gap-4 md:flex-col md:items-end md:gap-2">
+                    {project.repo && <ProjectLink href={project.repo} label="source" />}
+                    {project.live && <ProjectLink href={project.live} label="live" />}
+                  </div>
+                  {project.image && <ProjectShot src={project.image} title={project.title} live={project.live} />}
                 </div>
               </article>
             </Reveal>

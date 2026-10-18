@@ -51,7 +51,7 @@ export default function Hero({ content }) {
 
           <div className="hero-in mt-8 flex flex-wrap items-center gap-3" style={{ "--d": 3 }}>
             <a
-              href="#work"
+              href="#projects"
               className="inline-flex h-10 items-center rounded-md bg-fg px-4 text-sm font-medium text-bg transition-opacity hover:opacity-85"
             >
               See my work

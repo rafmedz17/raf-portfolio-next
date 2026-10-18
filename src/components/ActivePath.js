@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { navLinks } from "@/data/nav";
 import ScrambleText from "./ScrambleText";
 
-// Shows the current section as a shell path: ~/raf/work
+// Shows the current section as a shell path: ~/raf/projects
 export default function ActivePath({ name }) {
   const [section, setSection] = useState("");
 

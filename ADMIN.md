@@ -21,6 +21,7 @@ Saving writes straight to `src/data/content.json`, and the site at <http://local
 
 | Feature | Where |
 | --- | --- |
+| Add a screenshot to a project | **Projects** → open a project → copy a screenshot and press `Ctrl+V` (or drag/upload a file) |
 | Undo / redo | Arrows in the top bar |
 | Preview on phone or tablet size | Icons above the preview |
 | Preview light / dark mode | Moon/sun icon above the preview |
