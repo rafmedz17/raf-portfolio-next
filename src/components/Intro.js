@@ -13,21 +13,13 @@ const EXIT_DURATION = 1100;
 // Must match the boot-line transition delay in globals.css.
 const lineDelay = (i) => i * 210 + 250;
 
-function SpeakerIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-      <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
-    </svg>
-  );
-}
-
-// Cinematic opening: (start screen) → boot log → name reveal → curtain split.
+// Cinematic opening: boot log → name reveal → curtain split.
 // Whether it plays is decided before first paint by a script in layout.js,
 // which sets <html data-intro="play">. Plays once per session; skippable.
 //
-// The intro always has sound. Browsers only allow audio after a click or
-// key press, so a short start screen ("press any key") comes first.
+// It starts on its own. Browsers block audio until the visitor clicks or
+// presses a key, so on a fresh visit it plays silently; replays (typing
+// "reboot" in the terminal) have sound.
 export default function Intro({ name, role, lines }) {
   const rootRef = useRef(null);
   const counterRef = useRef(null);
@@ -115,51 +107,26 @@ export default function Intro({ name, role, lines }) {
       after(EXIT_AT, exit);
     };
 
-    // From the start screen: unlock audio (must run inside the click/key
-    // handler) and begin.
-    const enter = () => {
-      if (phase() !== "gate") return;
-      sound.setSound(true);
-      setPhase("entering");
-      after(120, boot); // give the audio a moment to wake up
-    };
-
     const play = () => {
       stop();
       running = true;
       html.dataset.intro = "play";
       setPhase("start");
       void root.offsetWidth; // restart CSS transitions on replay
-
-      // Audio still locked (no click/key yet this visit) → ask for one first.
-      if (!sound.audioReady()) {
-        setPhase("gate");
-        root.querySelector("[data-intro-action]")?.focus({ preventScroll: true });
-      } else {
-        boot();
-      }
+      boot();
     };
 
     const onKey = (e) => {
       if (!running || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (phase() === "entering") return;
-      if (phase() === "gate") {
-        if (e.key === "Tab") return;
-        e.preventDefault();
-        enter();
-        return;
-      }
       exit();
     };
 
     const onPointer = () => {
-      if (!running || phase() === "entering") return;
-      if (phase() === "gate") enter();
-      else exit();
+      if (running) exit();
     };
 
     const onScroll = () => {
-      if (running && phase() !== "gate" && phase() !== "entering") exit();
+      if (running) exit();
     };
 
     const replay = () => {
@@ -205,22 +172,6 @@ export default function Intro({ name, role, lines }) {
 
       <div className="intro-content">
         <div className="intro-vignette" aria-hidden="true" />
-
-        {/* Start screen */}
-        <div className="intro-gate absolute inset-0 grid place-items-center px-6 text-center">
-          <div>
-            <p className="intro-muted font-mono text-[11px] tracking-[0.3em] uppercase">~/{name.toLowerCase()} · ready</p>
-            <p className="mt-5 font-mono text-base sm:text-lg">
-              press any key to boot<span className="intro-caret" aria-hidden="true" />
-            </p>
-            <div className="mt-8 flex justify-center">
-              <button type="button" data-intro-action="enter" className="intro-btn intro-btn-primary">
-                <SpeakerIcon /> Enter
-              </button>
-            </div>
-            <p className="intro-muted mt-6 font-mono text-[10px] tracking-widest uppercase">sound on · best with headphones</p>
-          </div>
-        </div>
 
         {/* Top row */}
         <div className="intro-chrome absolute inset-x-0 top-[12vh] flex items-center justify-between px-6 font-mono text-[11px] tracking-wider uppercase sm:px-10" aria-hidden="true">

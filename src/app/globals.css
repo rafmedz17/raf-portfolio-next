@@ -221,8 +221,6 @@ html[data-intro="play"] {
 }
 .intro-panel-top .intro-letterbox { top: 0; transform-origin: top; }
 .intro-panel-bottom .intro-letterbox { bottom: 0; transform-origin: bottom; }
-.intro[data-phase="gate"] .intro-letterbox,
-.intro[data-phase="entering"] .intro-letterbox,
 .intro[data-phase="boot"] .intro-letterbox,
 .intro[data-phase="title"] .intro-letterbox,
 .intro[data-phase="exit"] .intro-letterbox {
@@ -249,72 +247,6 @@ html[data-intro="play"] {
   background:
     radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.55) 100%),
     repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
-}
-
-/* Start screen (asks for sound) */
-.intro-gate {
-  opacity: 0;
-  visibility: hidden;
-  transform: scale(0.98);
-  transition:
-    opacity 0.4s ease,
-    transform 0.6s var(--ease-out),
-    visibility 0s linear 0.4s;
-}
-.intro[data-phase="gate"] .intro-gate {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition:
-    opacity 0.6s ease 0.15s,
-    transform 0.8s var(--ease-out) 0.15s;
-}
-.intro-caret {
-  display: inline-block;
-  width: 0.55em;
-  height: 1.05em;
-  margin-left: 0.25em;
-  vertical-align: text-bottom;
-  background: var(--i-accent);
-  animation: blink 1.1s steps(1) infinite;
-}
-.intro-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  height: 2.75rem;
-  padding: 0 1.1rem;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 0.5rem;
-  color: var(--i-fg);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-}
-.intro-btn:hover {
-  background: rgb(255 255 255 / 0.06);
-  border-color: rgb(255 255 255 / 0.3);
-}
-.intro-btn:active {
-  transform: scale(0.97);
-}
-.intro-btn-primary {
-  background: var(--i-accent);
-  border-color: var(--i-accent);
-  color: var(--i-bg);
-  box-shadow: 0 0 24px rgb(74 222 128 / 0.35);
-}
-.intro-btn-primary:hover {
-  background: var(--i-accent);
-  border-color: var(--i-accent);
-  box-shadow: 0 0 36px rgb(74 222 128 / 0.55);
-}
-.intro-btn:focus-visible {
-  outline: 2px solid var(--i-fg);
-  outline-offset: 3px;
 }
 
 /* Top row + progress */
