@@ -1,11 +1,8 @@
 import { unlock } from "./achievements";
 
+// Dark unless the visitor switched to light.
 export function currentTheme() {
-  const set = document.documentElement.dataset.theme;
-  if (set) return set;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return document.documentElement.dataset.theme || "dark";
 }
 
 export function toggleTheme() {

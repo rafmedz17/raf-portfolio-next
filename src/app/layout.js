@@ -18,12 +18,12 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafaf9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0c" },
-  ],
+  themeColor: "#0b0b0c",
 };
 
+// The site is dark by default for everyone (set on <html> below), whatever
+// their system setting. A visitor who switches to light keeps that choice.
+//
 // Runs before first paint: applies the saved theme (no flash), and decides
 // whether the cinematic intro plays — home page only, once per session,
 // never for people who prefer reduced motion.
@@ -36,6 +36,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      data-theme="dark"
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       suppressHydrationWarning
     >
