@@ -33,14 +33,11 @@
   ],
   "about": {
     "paragraphs": [
-      "I'm a software developer who enjoys turning messy requirements into simple, well-structured systems. Most of my work lives on the web: React and Next.js on the front, Node, Python and Postgres behind it.",
-      "I care about the things that keep a codebase healthy over time — sensible abstractions, good tests, readable pull requests, and shipping in small, safe steps."
+      "I’m a developer who learns by building. Every project on this site started as a real problem — tracking intern hours, managing car rentals, archiving theses — and I took each one from blank folder to live deployment on my own.",
+      "Most of my work is on the web: React and TypeScript on the front, PHP and MySQL behind it, connected through REST APIs. Building solo means I’ve handled every layer myself — database design, authentication, file uploads, PDF generation, email, and hosting.",
+      "I’m now looking for my first developer role, where I can learn from a team and keep shipping."
     ],
     "now": [
-      {
-        "label": "Building",
-        "value": "this portfolio"
-      },
       {
         "label": "Learning",
         "value": "next.js"
@@ -51,7 +48,7 @@
       },
       {
         "label": "Fueled by",
-        "value": "caramel macchiato"
+        "value": "black-coffee"
       }
     ]
   },
