@@ -4,12 +4,12 @@
     "fullName": "Rafael Vincent D. Medina",
     "handle": "rafmedz17",
     "role": "Software Developer",
-    "headlinePrefix": "I build software that's",
+    "headlinePrefix": "I build web appsㅤ",
     "headlineWords": [
-      "fast.",
-      "reliable.",
-      "well-tested.",
-      "easy to maintain."
+      "that solve real problems.",
+      "and ship them live.",
+      "end to end.",
+      "from database to UI."
     ],
     "intro": "Full-stack developer working across the stack — from database schema and APIs to the last pixel of the UI. I like boring infrastructure, clear code, and products that just work.",
     "photo": "/images/raf.jpg",
