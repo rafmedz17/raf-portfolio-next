@@ -125,7 +125,7 @@
     {
       "title": "Lord of the Rims",
       "year": "2026",
-      "description": "Lord of the Rims is a full-stack car rental web app built as my PHP final project.\n\nCustomers can browse and filter a fleet of luxury vehicles, sign up for an account, and book a car using an interactive calendar that greys out dates already taken. Each booking calculates its total price automatically, and customers can track or cancel their reservations from a \"My Bookings\" page.\n\nAdmins get a dedicated dashboard with live stats (fleet size, bookings, revenue and customers), can add or edit vehicles with photo uploads, and move bookings through each stage from pending to confirmed, active and completed.",
+      "description": "A full-stack car rental platform built as my PHP final project, with a React + TypeScript front end and a PHP REST API.\n\nCustomers browse and filter the fleet, then book through a calendar that blocks dates already taken, so double bookings can’t happen. Prices are calculated automatically, and customers can track or cancel reservations.\n\nAdmins get a dashboard with live stats (fleet, bookings, revenue, customers), manage vehicles with photo uploads, and move each booking through pending → confirmed → active → completed.",
       "stack": [
         "React",
         "Typescript",
