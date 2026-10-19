@@ -108,7 +108,7 @@
     {
       "title": "DTR for Internship",
       "year": "2026",
-      "description": "DTR System is a web-based Daily Time Record application built for interns to track their daily attendance and rendered hours. Users can register, log in, and record their AM/PM time-in and time-out, including half-day entries. The system automatically computes hours worked and undertime, shows a dashboard with weekly and total hours, and keeps a monthly attendance history with remarks. Users can download their monthly DTR as a printable PDF and reset forgotten passwords by email.",
+      "description": "Interns at my workplace tracked their hours and write their daily journal on paper. I built a web app to replace that: interns log AM/PM time-in and time-out, and the system automatically computes hours rendered and undertime, including half-days.\n\nIt includes a dashboard with weekly and total hours, a monthly attendance history, daily journal, one-click printable PDFs, and password reset by email.",
       "stack": [
         "PHP",
         "MySQL",
