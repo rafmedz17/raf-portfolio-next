@@ -126,6 +126,24 @@
       "repo": "https://github.com/rafmedz17/lordoftherimsphp",
       "live": "https://rafmedz.alwaysdata.net/lordoftherims/",
       "image": "/uploads/project-1792406340980.webp"
+    },
+    {
+      "title": "Thesis Archiving",
+      "year": "2026",
+      "description": "Thesis Archive System is a generic web-based repository built as our college thesis project. It replaces manual record-keeping of research papers with a searchable online archive for both the College and Senior High School departments.Students can log in to submit their thesis with its abstract, authors, advisors and PDF file, then track whether it is pending, approved or rejected. Administrators and student assistants review submissions and manage the collection: theses, academic programs, user accounts and the site's branding. Visitors can browse by department, filter by program and year, search by title, author or abstract, and read the PDFs directly in the browser.",
+      "stack": [
+        "React",
+        "Vite",
+        "Tailwind CSS",
+        "REST API",
+        "MySQL",
+        "Cloudinary",
+        "Axios",
+        "JWT Auth"
+      ],
+      "repo": "https://github.com/rafmedz17/ThesisRevision",
+      "live": "https://rafmedz.alwaysdata.net/thesis",
+      "image": "/uploads/project-1792442397277.webp"
     }
   ],
   "experience": [
