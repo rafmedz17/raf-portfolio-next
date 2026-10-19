@@ -130,25 +130,11 @@
   ],
   "experience": [
     {
-      "role": "Junior Full-Stack Developer",
-      "company": "Company Name",
-      "period": "2022 — 2024",
-      "current": false,
-      "text": "Shipped features end-to-end across a React frontend and Node/Postgres backend. Introduced CI checks and automated tests."
-    },
-    {
-      "role": "Software Developer",
-      "company": "Company Name",
-      "period": "2024 — Present",
+      "role": "Data Processing",
+      "company": "MDPS",
+      "period": "June - Present",
       "current": true,
-      "text": "Building and maintaining customer-facing web apps and internal tools. Led a migration to Next.js that cut page load times by ~40%."
-    },
-    {
-      "role": "Developer Intern",
-      "company": "Company Name",
-      "period": "2021 — 2022",
-      "current": false,
-      "text": "Fixed bugs, wrote my first production code, and learned how real teams ship software."
+      "text": "Encoding, Verifying & Quality Checking Real Estate Documents."
     }
   ],
   "settings": {
