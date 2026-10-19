@@ -60,9 +60,7 @@
       "group": "languages",
       "items": [
         "TypeScript",
-        "JavaScript",
-        "Python",
-        "SQL"
+        "JavaScript"
       ]
     },
     {
@@ -78,8 +76,8 @@
       "items": [
         "Node.js",
         "Express",
-        "FastAPI",
-        "PostgreSQL"
+        "MySQL",
+        "PHP"
       ]
     },
     {
@@ -89,7 +87,8 @@
         "GitHub",
         "Vercel",
         "Alwaysdata",
-        "Filezilla"
+        "Filezilla",
+        "Cloudinary"
       ]
     }
   ],
