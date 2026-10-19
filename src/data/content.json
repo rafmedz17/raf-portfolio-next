@@ -86,9 +86,10 @@
       "group": "tooling",
       "items": [
         "Git",
-        "AWS",
+        "GitHub",
         "Vercel",
-        "Github"
+        "Alwaysdata",
+        "Filezilla"
       ]
     }
   ],
