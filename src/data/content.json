@@ -137,6 +137,34 @@
       "repo": "https://github.com/rafmedz17/lordoftherimsphp",
       "live": "https://rafmedz.alwaysdata.net/lordoftherims/",
       "image": "/uploads/project-1792406340980.webp"
+    },
+    {
+      "title": "Project Duel",
+      "year": "2026",
+      "description": "A browser-based, multiplayer sci-fi first-person shooter.\n\nPROJECT DUEL is a competitive FPS game built to run directly in a web browser. Players can practice their aim in a training facility, customize their character and equipment, and challenge friends in private 1v1 matches.\n\nThe game combines real-time 3D graphics, physics and multiplayer networking with a server that validates combat actions. It also includes optional accounts, saved loadouts, match history and an Elo-based leaderboard.",
+      "stack": [
+        "Javascript",
+        "React",
+        "JSX",
+        "HTML",
+        "CSS",
+        "Three.js",
+        "React Three Fiber",
+        "WebGL",
+        "Rapier",
+        "React Three Rapier",
+        "Colyseus",
+        "WebSockets",
+        "Node.js",
+        "Supabase Auth",
+        "PostgreSQL",
+        "Vite",
+        "Docker",
+        "Playwright"
+      ],
+      "repo": "https://github.com/rafmedz17/project-duel",
+      "live": "https://project-duel.onrender.com/",
+      "image": "/uploads/project-1795030721620.webp"
     }
   ],
   "experience": [],
